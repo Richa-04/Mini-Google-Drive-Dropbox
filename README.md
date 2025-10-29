@@ -8,6 +8,7 @@
 [![AWS S3](https://img.shields.io/badge/AWS_S3-569A31?style=for-the-badge&logo=amazon-s3&logoColor=white)]()
 
 ---
+
 ## 🌟 Overview
 
 Mini Google Drive - Dropbox is a cloud-based document management system that combines secure file storage with AI-powered semantic search capabilities. This system aims to solve common document management challenges by providing intelligent search, enterprise-grade security, and seamless file organization.
