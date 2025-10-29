@@ -9,20 +9,6 @@
 
 ---
 
-## 📋 Table of Contents
-- [Overview](#overview)
-- [Background](#background)
-- [Key Features](#key-features)
-- [Technology Stack](#technology-stack)
-- [Architecture](#architecture)
-- [Expected Outcomes](#expected-outcomes)
-- [Getting Started](#getting-started)
-- [Project Status](#project-status)
-- [Team](#team)
-- [License](#license)
-
----
-
 ## 🌟 Overview
 
 Mini Google Drive - Dropbox is a cloud-based document management system that combines secure file storage with AI-powered semantic search capabilities. This system aims to solve common document management challenges by providing intelligent search, enterprise-grade security, and seamless file organization.
