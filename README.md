@@ -163,17 +163,6 @@ This is Phase 1 of the final project for **INFO 5100: Application Engineering an
 
 ---
 
-## 👥 Team
-
-- **Richa Padhariya** - NUID: 002542349
-- **Neha Kumari** - NUID: 003158473
-
-**Course**: INFO 5100: Application Engineering and Development  
-**Semester**: Fall 2025  
-**Project**: Final Project - Phase 1
-
----
-
 ## 📚 References
 
 1. Global Growth Insights. "Electronic Document Management System Market Size [2033]." 2025.
@@ -182,26 +171,3 @@ This is Phase 1 of the final project for **INFO 5100: Application Engineering an
 
 ---
 
-## 📄 License
-
-This project is being developed as part of an academic course at Northeastern University.
-
----
-
-## 🤝 Contributing
-
-This is an academic project. Contributions are currently limited to team members.
-
----
-
-## 📞 Contact
-
-For questions or feedback about this project, please contact the team members through official university channels.
-
----
-
-<div align="center">
-  
-**Built with ❤️ for INFO 5100 Final Project**
-
-</div>
