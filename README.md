@@ -134,21 +134,6 @@ Cloud-native architecture designed to handle millions of files
 
 ---
 
-## 📌 Project Status
-
-🚧 **Status**: Planning & Design Phase
-
-This is Phase 1 of the final project for **INFO 5100: Application Engineering and Development** (Fall 2025).
-
-### Roadmap
-- [ ] Phase 1: Requirements & Design ✅ (Current)
-- [ ] Phase 2: Backend Development
-- [ ] Phase 3: Frontend Development
-- [ ] Phase 4: AI Integration
-- [ ] Phase 5: Testing & Deployment
-
----
-
 ## 📚 References
 
 1. Global Growth Insights. "Electronic Document Management System Market Size [2033]." 2025.
