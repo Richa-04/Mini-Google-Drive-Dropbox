@@ -8,8 +8,6 @@
 
 > A modern, secure cloud-based document management system with file encryption, intelligent search, and seamless sharing capabilities.
 
-![Project Banner](https://via.placeholder.com/1200x400/667eea/ffffff?text=Mini+Google+Drive)
-
 ---
 
 ## 📑 Table of Contents
