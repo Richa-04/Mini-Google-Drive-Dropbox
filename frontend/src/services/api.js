@@ -36,6 +36,7 @@ export const fileService = {
     getAllFiles: () => api.get('/files'),
     downloadFile: (fileId) => api.get(`/files/download/${fileId}`, { responseType: 'blob' }),
     deleteFile: (fileId) => api.delete(`/files/${fileId}`),
+    shareFile: (fileId, shareWithEmail) => api.post('/files/share', { fileId, shareWithEmail }),
 };
 
 export default api;
