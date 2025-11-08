@@ -217,24 +217,6 @@ npm start
 
 ---
 
-## 📸 Screenshots
-
-### Login & Signup
-Beautiful gradient-themed authentication pages with modern design
-
-### Dashboard
-- **Recent Documents**: Files uploaded in the last 7 days
-- **Statistics Cards**: Total files, today's uploads, storage usage
-- **Quick Actions**: Upload, open, share, delete
-
-### My Documents
-Complete view of all uploaded files with full management capabilities
-
-### Shared with Me
-Dedicated view for files shared by other users
-
----
-
 ## 📡 API Documentation
 
 ### Authentication Endpoints
@@ -265,57 +247,6 @@ Content-Type: application/json
 }
 
 Response: { "token": "jwt_token", "email": "...", "firstName": "...", "lastName": "..." }
-```
-
-### File Management Endpoints
-
-#### Upload File
-```http
-POST /api/files/upload
-Authorization: Bearer {jwt_token}
-Content-Type: multipart/form-data
-
-Form Data: file=<binary>
-
-Response: { "id": "...", "fileName": "...", "fileSize": ..., "uploadedAt": "..." }
-```
-
-#### Get All Files
-```http
-GET /api/files
-Authorization: Bearer {jwt_token}
-
-Response: [{ "id": "...", "fileName": "...", ... }]
-```
-
-#### Download File
-```http
-GET /api/files/download/{fileId}
-Authorization: Bearer {jwt_token}
-
-Response: Binary file data (decrypted)
-```
-
-#### Delete File
-```http
-DELETE /api/files/{fileId}
-Authorization: Bearer {jwt_token}
-
-Response: 200 OK
-```
-
-#### Share File
-```http
-POST /api/files/share
-Authorization: Bearer {jwt_token}
-Content-Type: application/json
-
-{
-  "fileId": "file_id",
-  "shareWithEmail": "recipient@example.com"
-}
-
-Response: { "id": "...", "sharedWith": ["email1", "email2"] }
 ```
 
 ---
@@ -385,23 +316,6 @@ All API Requests → JWT Validated → User Authorized → Action Performed
 
 ---
 
-## 🎨 Design Highlights
-
-### Color Palette
-- **Primary Gradient**: `#667eea → #764ba2` (Purple)
-- **Secondary Gradient**: `#f093fb → #f5576c` (Pink)
-- **Accent Gradient**: `#4facfe → #00f2fe` (Blue)
-- **Background**: `#f7f9fc` (Light Gray)
-
-### Key UI Components
-- Glassmorphism effects with backdrop blur
-- Smooth hover animations and transitions
-- Card-based file display
-- Gradient statistics cards
-- Floating action button for uploads
-
----
-
 ## 🧪 Testing
 
 ### Manual Testing Checklist
@@ -421,24 +335,6 @@ All API Requests → JWT Validated → User Authorized → Action Performed
 Email: test@example.com
 Password: password123
 ```
-
----
-
-## 📊 Features Breakdown
-
-| Feature | Status | Description |
-|---------|--------|-------------|
-| User Authentication | ✅ Complete | JWT-based signup/login system |
-| File Upload | ✅ Complete | Multi-format support with encryption |
-| File Download | ✅ Complete | Decryption and secure delivery |
-| File Delete | ✅ Complete | Owner-only deletion with confirmation |
-| File Sharing | ✅ Complete | Share with multiple users |
-| Search | ✅ Complete | Real-time file name search |
-| Multiple Views | ✅ Complete | Dashboard, My Docs, Shared |
-| Encryption | ✅ Complete | AES-256 for all files |
-| Responsive UI | ✅ Complete | Mobile-friendly design |
-| Cloud Integration | 🔄 Optional | AWS S3 (can be added) |
-| AI Semantic Search | 🔄 Future | OpenAI integration planned |
 
 ---
 
@@ -530,87 +426,6 @@ npm start
 
 ---
 
-## 🔧 Configuration Options
-
-### Environment Variables (Production)
-```bash
-# MongoDB
-MONGODB_URI=your_production_mongodb_uri
-MONGODB_DATABASE=minigoogledrive
-
-# JWT
-JWT_SECRET=your_production_secret_min_256_bits
-JWT_EXPIRATION=86400000
-
-# Server
-SERVER_PORT=8080
-```
-
-### CORS Configuration
-Update `SecurityConfig.java` to allow your frontend domain:
-```java
-configuration.setAllowedOrigins(Arrays.asList(
-    "http://localhost:3000",
-    "https://your-production-domain.com"
-));
-```
-
----
-
-## 🎓 Learning Outcomes
-
-### Technical Skills Gained
-- ✅ Full-stack development (Java Spring Boot + React)
-- ✅ RESTful API design and implementation
-- ✅ JWT authentication and authorization
-- ✅ File encryption (AES-256)
-- ✅ MongoDB database design
-- ✅ React hooks and context API
-- ✅ Material-UI component styling
-- ✅ Git version control and collaboration
-
-### Best Practices Implemented
-- Clean code architecture with separation of concerns
-- Secure password handling (never stored in plain text)
-- Input validation on frontend and backend
-- Error handling and user feedback
-- Responsive design principles
-- RESTful API conventions
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Backend won't start:**
-```bash
-# Check MongoDB connection string encoding
-# Special characters in password must be URL-encoded
-# Example: @ becomes %40
-```
-
-**Files not uploading:**
-```bash
-# Ensure uploads/ directory exists in backend folder
-# Check file size limit in application.properties
-# Verify JWT token is valid (try logging in again)
-```
-
-**CORS errors:**
-```bash
-# Verify frontend URL is allowed in SecurityConfig.java
-# Check that both backend and frontend are running
-```
-
-**403 Forbidden errors:**
-```bash
-# Token might be expired - logout and login again
-# Check Authorization header is being sent
-```
-
----
-
 ## 🔮 Future Enhancements
 
 ### Planned Features
@@ -626,50 +441,13 @@ configuration.setAllowedOrigins(Arrays.asList(
 
 ---
 
-## 👥 Team
-
-**Course Project - INFO 5100**
-
-| Name | Role | Contribution |
-|------|------|--------------|
-| **Richa Padhariya** | Full Stack Developer | Backend architecture, file encryption, authentication |
-| **Neha** | Frontend Developer | UI/UX design, React components, user interface |
-
----
-
 ## 📈 Project Statistics
 
 - **Lines of Code**: ~2,500+
 - **Components**: 15+
 - **API Endpoints**: 8
-- **Development Time**: 40+ hours
+- **Development Time**: 50+ hours
 - **Technologies**: 10+
-
----
-
-## 🙏 Acknowledgments
-
-- Spring Boot Documentation
-- React Documentation
-- Material-UI Component Library
-- MongoDB Atlas
-- Stack Overflow Community
-- Course Instructor and TAs
-
----
-
-## 📄 License
-
-This project is developed as a course project for **INFO 5100 - Application Engineering and Development** at Northeastern University.
-
----
-
-## 📞 Contact
-
-For questions or feedback:
-- **Email**: padhariya.r@northeastern.edu
-- **GitHub**: [@Richa-04](https://github.com/Richa-04)
-- **Project Repository**: [Mini-Google-Drive-Dropbox](https://github.com/Richa-04/Mini-Google-Drive-Dropbox)
 
 ---
 
