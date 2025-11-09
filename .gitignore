@@ -1,3 +1,4 @@
+cat > .gitignore << 'EOF'
 # Backend (Java/Spring Boot)
 backend/target/
 backend/.mvn/
@@ -8,6 +9,7 @@ backend/*.iml
 backend/.settings/
 backend/.classpath
 backend/.project
+backend/src/main/resources/application.properties
 
 # Frontend (React)
 frontend/node_modules/
@@ -16,6 +18,11 @@ frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
 
 # IDE
 .vscode/
@@ -31,11 +38,18 @@ Thumbs.db
 # Logs
 *.log
 
-# IMPORTANT: Don't commit sensitive data!
-# We're NOT ignoring application.properties because we need to share MongoDB config
-# But make sure to use environment variables in production!
-
 # AWS and sensitive files
 *.pem
 *.key
 aws-credentials.json
+
+# Build outputs
+out/
+
+# Uploads folder (encrypted files)
+backend/uploads/
+
+# Test files
+testfile.txt
+downloaded.txt
+EOF
