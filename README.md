@@ -10,19 +10,6 @@
 
 ---
 
-## 📑 Table of Contents
-- [Overview](#-overview)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Getting Started](#-getting-started)
-- [System Architecture](#-system-architecture)
-- [Screenshots](#-screenshots)
-- [API Documentation](#-api-documentation)
-- [Team](#-team)
-- [License](#-license)
-
----
-
 ## 🌟 Overview
 
 **Mini Google Drive** is a full-stack document management system that revolutionizes how users store, organize, and retrieve files. Built with enterprise-grade security and modern design principles, it provides a seamless experience for managing documents in the cloud.
