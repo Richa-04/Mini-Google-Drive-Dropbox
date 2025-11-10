@@ -6,12 +6,12 @@ import {
     Box, Typography, Button, Paper, AppBar, Toolbar, List, ListItem,
     ListItemIcon, ListItemText, Avatar, IconButton, Alert, CircularProgress,
     TextField, InputAdornment, Drawer, Fab, Menu, MenuItem, Chip, Divider,
-    Dialog, DialogTitle, DialogContent, DialogActions
+    Dialog, DialogTitle, DialogContent, DialogActions, ButtonGroup
 } from '@mui/material';
 import {
     CloudUpload, Download, Delete, Logout, InsertDriveFile, Dashboard as DashboardIcon,
     Folder, PeopleAlt, Search, Image, PictureAsPdf, Description,
-    MoreVert, Add, Share, Email
+    MoreVert, Add, Share, Email, FilterList, Sort, CalendarToday, ViewList, ViewModule
 } from '@mui/icons-material';
 import logo from '../assets/logo.png';
 
@@ -30,7 +30,13 @@ const Dashboard = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [shareDialogOpen, setShareDialogOpen] = useState(false);
     const [shareEmail, setShareEmail] = useState('');
-    const [currentView, setCurrentView] = useState('dashboard'); // 'dashboard', 'myDocuments', or 'shared'
+    const [currentView, setCurrentView] = useState('dashboard');
+    
+    // NEW: Filter states
+    const [fileTypeFilter, setFileTypeFilter] = useState('all');
+    const [dateFilter, setDateFilter] = useState('all');
+    const [sortBy, setSortBy] = useState('newest');
+    const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
 
     useEffect(() => {
         loadFiles();
@@ -40,7 +46,6 @@ const Dashboard = () => {
         setLoading(true);
         try {
             const response = await fileService.getAllFiles();
-            // Sort by uploadedAt in descending order (newest first)
             const sortedFiles = response.data.sort((a, b) => 
                 new Date(b.uploadedAt) - new Date(a.uploadedAt)
             );
@@ -157,7 +162,6 @@ const Dashboard = () => {
             setSuccess(`📤 File shared successfully!`);
             loadFiles();
         } catch (err) {
-            // Ignore error - sharing likely succeeded despite CORS preflight issue
             setSuccess(`📤 File shared successfully!`);
             loadFiles();
         }
@@ -186,7 +190,6 @@ const Dashboard = () => {
         return formatFileSize(total);
     };
 
-    // Filter by view
     const getViewTitle = () => {
         if (currentView === 'dashboard') return '📁 Recent Documents (Last 7 Days)';
         if (currentView === 'myDocuments') return '📂 My Documents';
@@ -196,7 +199,6 @@ const Dashboard = () => {
 
     const getFilteredFilesByView = () => {
         if (currentView === 'dashboard') {
-            // Show files from last 7 days
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
             return files.filter(file => 
@@ -204,10 +206,8 @@ const Dashboard = () => {
                 new Date(file.uploadedAt) >= sevenDaysAgo
             );
         } else if (currentView === 'myDocuments') {
-            // Show all files owned by user
             return files.filter(file => file.ownerEmail === user?.email);
         } else if (currentView === 'shared') {
-            // Show only files shared with user
             return files.filter(file => 
                 file.sharedWith && 
                 file.sharedWith.includes(user?.email) &&
@@ -217,12 +217,61 @@ const Dashboard = () => {
         return files;
     };
 
-    const viewFilteredFiles = getFilteredFilesByView();
+    // NEW: Apply all filters
+    const getFilteredAndSortedFiles = () => {
+        let result = getFilteredFilesByView();
 
-    // Then filter by search query
-    const filteredFiles = viewFilteredFiles.filter(file =>
-        file.originalFileName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+        // Apply search query
+        if (searchQuery) {
+            result = result.filter(file =>
+                file.originalFileName.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        }
+
+        // Apply file type filter
+        if (fileTypeFilter !== 'all') {
+            result = result.filter(file => {
+                if (fileTypeFilter === 'pdf') return file.fileType?.includes('pdf');
+                if (fileTypeFilter === 'image') return file.fileType?.includes('image');
+                if (fileTypeFilter === 'document') return file.fileType?.includes('text') || file.fileType?.includes('document');
+                return true;
+            });
+        }
+
+        // Apply date filter
+        if (dateFilter !== 'all') {
+            const now = new Date();
+            result = result.filter(file => {
+                const fileDate = new Date(file.uploadedAt);
+                if (dateFilter === 'today') {
+                    return fileDate.toDateString() === now.toDateString();
+                }
+                if (dateFilter === 'week') {
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return fileDate >= weekAgo;
+                }
+                if (dateFilter === 'month') {
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    return fileDate >= monthAgo;
+                }
+                return true;
+            });
+        }
+
+        // Apply sorting
+        result = [...result].sort((a, b) => {
+            if (sortBy === 'newest') return new Date(b.uploadedAt) - new Date(a.uploadedAt);
+            if (sortBy === 'oldest') return new Date(a.uploadedAt) - new Date(b.uploadedAt);
+            if (sortBy === 'largest') return b.fileSize - a.fileSize;
+            if (sortBy === 'smallest') return a.fileSize - b.fileSize;
+            if (sortBy === 'name') return a.originalFileName.localeCompare(b.originalFileName);
+            return 0;
+        });
+
+        return result;
+    };
+
+    const filteredFiles = getFilteredAndSortedFiles();
 
     return (
         <Box sx={{ display: 'flex', height: '100vh', bgcolor: '#f0f2f5' }}>
@@ -358,7 +407,7 @@ const Dashboard = () => {
                     <Toolbar sx={{ py: 1.5, px: 3 }}>
                         {/* Search Bar */}
                         <TextField
-                            placeholder="Search your files..."
+                            placeholder="Let's find that doc..."
                             variant="outlined"
                             size="small"
                             value={searchQuery}
@@ -384,7 +433,7 @@ const Dashboard = () => {
                         {/* Spacer */}
                         <Box sx={{ flexGrow: 1 }} />
 
-                        {/* User Profile - Far Right */}
+                        {/* User Profile */}
                         <IconButton 
                             onClick={(e) => {
                                 setAnchorEl(e.currentTarget);
@@ -406,55 +455,72 @@ const Dashboard = () => {
                     </Toolbar>
                 </AppBar>
 
+                {/* Floating Alerts - Just Below Top Bar */}
+                {error && (
+                    <Alert 
+                        severity="error" 
+                        sx={{ 
+                            position: 'fixed',
+                            top: 90,
+                            right: 32,
+                            zIndex: 1300,
+                            minWidth: 350,
+                            borderRadius: 3, 
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                        }} 
+                        onClose={() => setError('')}
+                    >
+                        {error}
+                    </Alert>
+                )}
+                {success && (
+                    <Alert 
+                        severity="success" 
+                        sx={{ 
+                            position: 'fixed',
+                            top: 90,
+                            right: 32,
+                            zIndex: 1300,
+                            minWidth: 350,
+                            borderRadius: 3, 
+                            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                        }} 
+                        onClose={() => setSuccess('')}
+                    >
+                        {success}
+                    </Alert>
+                )}
+
                 {/* Content Area */}
                 <Box sx={{ flexGrow: 1, overflow: 'auto', p: 4, bgcolor: '#f7f9fc' }}>
-                    {/* Alerts */}
-                    {error && (
-                        <Alert 
-                            severity="error" 
-                            sx={{ mb: 3, borderRadius: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} 
-                            onClose={() => setError('')}
-                        >
-                            {error}
-                        </Alert>
-                    )}
-                    {success && (
-                        <Alert 
-                            severity="success" 
-                            sx={{ mb: 3, borderRadius: 3, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} 
-                            onClose={() => setSuccess('')}
-                        >
-                            {success}
-                        </Alert>
-                    )}
 
                     {/* Welcome Section */}
-                    <Box sx={{ mb: 4 }}>
-                        <Typography variant="h3" sx={{ fontWeight: 800, color: '#1d2129', mb: 1 }}>
+                    <Box sx={{ mb: 3 }}>
+                        <Typography variant="h4" sx={{ fontWeight: 800, color: '#1d2129', mb: 0.5 }}>
                             Welcome back, {user?.firstName}! 👋
                         </Typography>
-                        <Typography variant="h6" sx={{ color: '#6e7c87', fontWeight: 400 }}>
+                        <Typography variant="body1" sx={{ color: '#6e7c87', fontWeight: 400 }}>
                             {currentView === 'dashboard' && "Here's what's happening with your documents today"}
                             {currentView === 'myDocuments' && "All your uploaded documents"}
                             {currentView === 'shared' && "Files others have shared with you"}
                         </Typography>
                     </Box>
 
-                    {/* Stats Cards */}
-                    <Box sx={{ display: 'flex', gap: 3, mb: 5 }}>
+                    {/* Stats Cards - Compact Version */}
+                    <Box sx={{ display: 'flex', gap: 3, mb: 4 }}>
                         <Paper
                             elevation={0}
                             sx={{
                                 flex: 1,
-                                p: 4,
-                                borderRadius: 4,
+                                p: 2.5,
+                                borderRadius: 3,
                                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                 color: 'white',
-                                boxShadow: '0 8px 24px rgba(102, 126, 234, 0.3)',
-                                transition: 'transform 0.3s ease',
+                                boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',
+                                transition: 'transform 0.2s ease',
                                 '&:hover': {
-                                    transform: 'translateY(-8px)',
-                                    boxShadow: '0 12px 32px rgba(102, 126, 234, 0.4)',
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
                                 }
                             }}
                         >
@@ -462,20 +528,20 @@ const Dashboard = () => {
                                 <Box
                                     sx={{
                                         bgcolor: 'rgba(255, 255, 255, 0.2)',
-                                        p: 2,
-                                        borderRadius: 3,
+                                        p: 1.5,
+                                        borderRadius: 2,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <InsertDriveFile sx={{ fontSize: 36 }} />
+                                    <InsertDriveFile sx={{ fontSize: 28 }} />
                                 </Box>
-                                <Box>
-                                    <Typography variant="body2" sx={{ opacity: 0.9, mb: 0.5 }}>
-                                        Total Documents
+                                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                                    <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500, fontSize: '1.5rem'}}>
+                                        Total Documents:
                                     </Typography>
-                                    <Typography variant="h3" sx={{ fontWeight: 800 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800,  fontSize: '1.5rem' }}>
                                         {files.filter(f => f.ownerEmail === user?.email).length}
                                     </Typography>
                                 </Box>
@@ -486,15 +552,15 @@ const Dashboard = () => {
                             elevation={0}
                             sx={{
                                 flex: 1,
-                                p: 4,
-                                borderRadius: 4,
+                                p: 2.5,
+                                borderRadius: 3,
                                 background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
                                 color: 'white',
-                                boxShadow: '0 8px 24px rgba(240, 147, 251, 0.3)',
-                                transition: 'transform 0.3s ease',
+                                boxShadow: '0 4px 16px rgba(240, 147, 251, 0.3)',
+                                transition: 'transform 0.2s ease',
                                 '&:hover': {
-                                    transform: 'translateY(-8px)',
-                                    boxShadow: '0 12px 32px rgba(240, 147, 251, 0.4)',
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: '0 8px 24px rgba(240, 147, 251, 0.4)',
                                 }
                             }}
                         >
@@ -502,20 +568,20 @@ const Dashboard = () => {
                                 <Box
                                     sx={{
                                         bgcolor: 'rgba(255, 255, 255, 0.2)',
-                                        p: 2,
-                                        borderRadius: 3,
+                                        p: 1.5,
+                                        borderRadius: 2,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <CloudUpload sx={{ fontSize: 36 }} />
+                                    <CloudUpload sx={{ fontSize: 28 }} />
                                 </Box>
-                                <Box>
-                                    <Typography variant="body2" sx={{ opacity: 0.9, mb: 0.5 }}>
-                                        Files Today
+                                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                                    <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500,  fontSize: '1.5rem' }}>
+                                        Files Today:
                                     </Typography>
-                                    <Typography variant="h3" sx={{ fontWeight: 800 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800,  fontSize: '1.5rem' }}>
                                         {files.filter(f => {
                                             const today = new Date().toDateString();
                                             return new Date(f.uploadedAt).toDateString() === today &&
@@ -530,15 +596,15 @@ const Dashboard = () => {
                             elevation={0}
                             sx={{
                                 flex: 1,
-                                p: 4,
-                                borderRadius: 4,
+                                p: 2.5,
+                                borderRadius: 3,
                                 background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
                                 color: 'white',
-                                boxShadow: '0 8px 24px rgba(79, 172, 254, 0.3)',
-                                transition: 'transform 0.3s ease',
+                                boxShadow: '0 4px 16px rgba(79, 172, 254, 0.3)',
+                                transition: 'transform 0.2s ease',
                                 '&:hover': {
-                                    transform: 'translateY(-8px)',
-                                    boxShadow: '0 12px 32px rgba(79, 172, 254, 0.4)',
+                                    transform: 'translateY(-4px)',
+                                    boxShadow: '0 8px 24px rgba(79, 172, 254, 0.4)',
                                 }
                             }}
                         >
@@ -546,20 +612,20 @@ const Dashboard = () => {
                                 <Box
                                     sx={{
                                         bgcolor: 'rgba(255, 255, 255, 0.2)',
-                                        p: 2,
-                                        borderRadius: 3,
+                                        p: 1.5,
+                                        borderRadius: 2,
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center'
                                     }}
                                 >
-                                    <Folder sx={{ fontSize: 36 }} />
+                                    <Folder sx={{ fontSize: 28 }} />
                                 </Box>
-                                <Box>
-                                    <Typography variant="body2" sx={{ opacity: 0.9, mb: 0.5 }}>
-                                        Storage Used
+                                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                                    <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500,  fontSize: '1.5rem' }}>
+                                        Storage Used:
                                     </Typography>
-                                    <Typography variant="h3" sx={{ fontWeight: 800 }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 800,  fontSize: '1.5rem' }}>
                                         {getTotalSize()}
                                     </Typography>
                                 </Box>
@@ -567,19 +633,233 @@ const Dashboard = () => {
                         </Paper>
                     </Box>
 
+                    {/* NEW: Filter Section */}
+                    <Paper
+                        elevation={0}
+                        sx={{
+                            p: 2.5,
+                            borderRadius: 3,
+                            mb: 3,
+                            border: '1px solid #e8edf2',
+                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.05)',
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
+                            {/* File Type Filter */}
+                            <Box>
+                                <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, fontWeight: 600, color: '#6e7c87' }}>
+                                    <FilterList sx={{ fontSize: 16 }} /> File Type
+                                </Typography>
+                                <ButtonGroup variant="outlined" size="small">
+                                    <Button 
+                                        onClick={() => setFileTypeFilter('all')}
+                                        variant={fileTypeFilter === 'all' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: fileTypeFilter === 'all' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: fileTypeFilter === 'all' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        All
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setFileTypeFilter('pdf')}
+                                        variant={fileTypeFilter === 'pdf' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: fileTypeFilter === 'pdf' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: fileTypeFilter === 'pdf' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        PDF
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setFileTypeFilter('image')}
+                                        variant={fileTypeFilter === 'image' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: fileTypeFilter === 'image' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: fileTypeFilter === 'image' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        Images
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setFileTypeFilter('document')}
+                                        variant={fileTypeFilter === 'document' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: fileTypeFilter === 'document' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: fileTypeFilter === 'document' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        Docs
+                                    </Button>
+                                </ButtonGroup>
+                            </Box>
+
+                            {/* Date Filter */}
+                            <Box>
+                                <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, fontWeight: 600, color: '#6e7c87' }}>
+                                    <CalendarToday sx={{ fontSize: 16 }} /> Date
+                                </Typography>
+                                <ButtonGroup variant="outlined" size="small">
+                                    <Button 
+                                        onClick={() => setDateFilter('all')}
+                                        variant={dateFilter === 'all' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: dateFilter === 'all' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: dateFilter === 'all' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        All Time
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setDateFilter('today')}
+                                        variant={dateFilter === 'today' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: dateFilter === 'today' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: dateFilter === 'today' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        Today
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setDateFilter('week')}
+                                        variant={dateFilter === 'week' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: dateFilter === 'week' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: dateFilter === 'week' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        This Week
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setDateFilter('month')}
+                                        variant={dateFilter === 'month' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: dateFilter === 'month' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: dateFilter === 'month' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        This Month
+                                    </Button>
+                                </ButtonGroup>
+                            </Box>
+
+                            {/* Sort Filter */}
+                            <Box>
+                                <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, fontWeight: 600, color: '#6e7c87' }}>
+                                    <Sort sx={{ fontSize: 16 }} /> Sort By
+                                </Typography>
+                                <ButtonGroup variant="outlined" size="small">
+                                    <Button 
+                                        onClick={() => setSortBy('newest')}
+                                        variant={sortBy === 'newest' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: sortBy === 'newest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: sortBy === 'newest' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        Newest
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setSortBy('oldest')}
+                                        variant={sortBy === 'oldest' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: sortBy === 'oldest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: sortBy === 'oldest' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        Oldest
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setSortBy('largest')}
+                                        variant={sortBy === 'largest' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: sortBy === 'largest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: sortBy === 'largest' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        Largest
+                                    </Button>
+                                    <Button 
+                                        onClick={() => setSortBy('name')}
+                                        variant={sortBy === 'name' ? 'contained' : 'outlined'}
+                                        sx={{ 
+                                            background: sortBy === 'name' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
+                                            color: sortBy === 'name' ? 'white' : '#667eea',
+                                            borderColor: '#667eea',
+                                            '&:hover': { borderColor: '#667eea' }
+                                        }}
+                                    >
+                                        A-Z
+                                    </Button>
+                                </ButtonGroup>
+                            </Box>
+                        </Box>
+                    </Paper>
+
                     {/* Files Section Header */}
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
                         <Typography variant="h5" sx={{ fontWeight: 700, color: '#1d2129' }}>
                             {getViewTitle()}
                         </Typography>
-                        <Chip 
-                            label={`${filteredFiles.length} files`} 
-                            sx={{ 
-                                bgcolor: '#667eea', 
-                                color: 'white', 
-                                fontWeight: 600 
-                            }} 
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Chip 
+                                label={`${filteredFiles.length} files`} 
+                                sx={{ 
+                                    bgcolor: '#667eea', 
+                                    color: 'white', 
+                                    fontWeight: 600 
+                                }} 
+                            />
+                            <ButtonGroup variant="outlined" size="small">
+                                <IconButton
+                                    onClick={() => setViewMode('grid')}
+                                    sx={{
+                                        bgcolor: viewMode === 'grid' ? '#667eea' : 'transparent',
+                                        color: viewMode === 'grid' ? 'white' : '#667eea',
+                                        borderColor: '#667eea',
+                                        borderRadius: '4px 0 0 4px',
+                                        '&:hover': { bgcolor: viewMode === 'grid' ? '#5568d3' : '#f7f9fc' }
+                                    }}
+                                >
+                                    <ViewModule />
+                                </IconButton>
+                                <IconButton
+                                    onClick={() => setViewMode('list')}
+                                    sx={{
+                                        bgcolor: viewMode === 'list' ? '#667eea' : 'transparent',
+                                        color: viewMode === 'list' ? 'white' : '#667eea',
+                                        borderColor: '#667eea',
+                                        borderRadius: '0 4px 4px 0',
+                                        borderLeft: '1px solid #667eea',
+                                        '&:hover': { bgcolor: viewMode === 'list' ? '#5568d3' : '#f7f9fc' }
+                                    }}
+                                >
+                                    <ViewList />
+                                </IconButton>
+                            </ButtonGroup>
+                        </Box>
                     </Box>
 
                     {loading ? (
@@ -601,17 +881,120 @@ const Dashboard = () => {
                             <Folder sx={{ fontSize: 100, color: '#667eea', opacity: 0.3, mb: 2 }} />
                             <Typography variant="h5" sx={{ color: '#1d2129', fontWeight: 600, mb: 1 }}>
                                 {searchQuery ? 'No files found' : 
-                                 currentView === 'dashboard' ? 'No files uploaded in the last 7 days' :
+                                 currentView === 'dashboard' ? 'No files match your filters' :
                                  currentView === 'myDocuments' ? 'No files yet' :
                                  'No files shared with you yet'}
                             </Typography>
                             <Typography variant="body1" color="textSecondary">
-                                {searchQuery ? 'Try a different search term' : 
+                                {searchQuery || fileTypeFilter !== 'all' || dateFilter !== 'all' ? 'Try adjusting your filters' : 
                                  currentView === 'shared' ? 'Files shared with you will appear here' :
                                  'Click the + button to upload your first file'}
                             </Typography>
                         </Paper>
+                    ) : viewMode === 'grid' ? (
+                        /* Grid View */
+                        <Box
+                            sx={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                                gap: 3,
+                                mb: 12,
+                            }}
+                        >
+                            {filteredFiles.map((file) => (
+                                <Paper
+                                    key={file.id}
+                                    elevation={0}
+                                    sx={{
+                                        borderRadius: 3,
+                                        overflow: 'hidden',
+                                        border: '1px solid #e8edf2',
+                                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.08)',
+                                        transition: 'all 0.2s ease',
+                                        '&:hover': {
+                                            boxShadow: '0 8px 24px rgba(102, 126, 234, 0.15)',
+                                            transform: 'translateY(-4px)',
+                                        },
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    {/* File Preview */}
+                                    <Box
+                                        onClick={() => handleOpenFile(file)}
+                                        sx={{
+                                            height: 200,
+                                            bgcolor: file.fileType?.includes('pdf') ? '#ffebee' :
+                                                file.fileType?.includes('image') ? '#e8f5e9' :
+                                                    file.fileType?.includes('text') ? '#e3f2fd' : '#f5f5f5',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            position: 'relative',
+                                        }}
+                                    >
+                                        {getFileIcon(file.fileType)}
+                                        {file.ownerEmail !== user?.email && (
+                                            <Chip 
+                                                label="Shared" 
+                                                size="small" 
+                                                sx={{ 
+                                                    position: 'absolute',
+                                                    top: 12,
+                                                    right: 12,
+                                                    bgcolor: '#e3f2fd', 
+                                                    color: '#1976d2',
+                                                    fontWeight: 600,
+                                                    fontSize: '0.7rem'
+                                                }} 
+                                            />
+                                        )}
+                                    </Box>
+
+                                    {/* File Info */}
+                                    <Box sx={{ p: 2 }}>
+                                        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography 
+                                                variant="subtitle1" 
+                                                sx={{ 
+                                                    fontWeight: 600, 
+                                                    color: '#1d2129',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    flex: 1,
+                                                    mr: 1
+                                                }}
+                                            >
+                                                {file.originalFileName}
+                                            </Typography>
+                                            <IconButton
+                                                size="small"
+                                                sx={{
+                                                    bgcolor: '#f7f9fc',
+                                                    '&:hover': { bgcolor: '#e8edf2' }
+                                                }}
+                                                onClick={(e) => handleMenuOpen(e, file)}
+                                            >
+                                                <MoreVert fontSize="small" />
+                                            </IconButton>
+                                        </Box>
+                                        <Typography variant="caption" sx={{ color: '#6e7c87', display: 'block' }}>
+                                            {formatFileSize(file.fileSize)}
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ color: '#6e7c87' }}>
+                                            {new Date(file.uploadedAt).toLocaleDateString()}
+                                        </Typography>
+                                        {file.ownerEmail !== user?.email && (
+                                            <Typography variant="caption" sx={{ color: '#6e7c87', display: 'block', mt: 0.5 }}>
+                                                Owner: {file.ownerEmail}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                </Paper>
+                            ))}
+                        </Box>
                     ) : (
+                        /* List View */
                         <Paper
                             elevation={0}
                             sx={{
