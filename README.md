@@ -617,17 +617,6 @@ mvn clean install
 
 ---
 
-## 🙏 Acknowledgments
-
-- Spring Boot Documentation
-- React Documentation
-- MongoDB Atlas
-- AWS S3 Documentation
-- Material-UI Component Library
-- Stack Overflow Community
-
----
-
 <div align="center">
 
 ### ⭐ If you found this project helpful, please give it a star!
