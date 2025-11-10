@@ -11,7 +11,7 @@ import {
 import {
     CloudUpload, Download, Delete, Logout, InsertDriveFile, Dashboard as DashboardIcon,
     Folder, PeopleAlt, Search, Image, PictureAsPdf, Description,
-    MoreVert, Add, Share, Email, FilterList, Sort, CalendarToday, ViewList, ViewModule
+    MoreVert, Add, Share, Email, FilterList, Sort, CalendarToday, ViewList, ViewModule, Edit
 } from '@mui/icons-material';
 import logo from '../assets/logo.png';
 
@@ -30,6 +30,8 @@ const Dashboard = () => {
     const [selectedFile, setSelectedFile] = useState(null);
     const [shareDialogOpen, setShareDialogOpen] = useState(false);
     const [shareEmail, setShareEmail] = useState('');
+    const [renameDialogOpen, setRenameDialogOpen] = useState(false);
+    const [newFileName, setNewFileName] = useState('');
     const [currentView, setCurrentView] = useState('dashboard');
     
     // NEW: Filter states
@@ -164,6 +166,29 @@ const Dashboard = () => {
         } catch (err) {
             setSuccess(`📤 File shared successfully!`);
             loadFiles();
+        }
+    };
+
+    const handleRenameFile = async () => {
+        if (!selectedFile || !newFileName) return;
+        
+        setRenameDialogOpen(false);
+        const oldName = selectedFile.originalFileName;
+        setNewFileName('');
+        handleMenuClose();
+        
+        try {
+            const token = localStorage.getItem('token');
+            await fetch(`http://localhost:8080/api/files/rename/${selectedFile.id}?newFileName=${encodeURIComponent(newFileName)}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            setSuccess(`✏️ File renamed from "${oldName}" to "${newFileName}"!`);
+            loadFiles();
+        } catch (err) {
+            setError('Failed to rename file');
         }
     };
 
@@ -461,8 +486,8 @@ const Dashboard = () => {
                         severity="error" 
                         sx={{ 
                             position: 'fixed',
-                            top: 90,
-                            right: 32,
+                            top: 100,
+                            right: 30,
                             zIndex: 1300,
                             minWidth: 350,
                             borderRadius: 3, 
@@ -478,8 +503,8 @@ const Dashboard = () => {
                         severity="success" 
                         sx={{ 
                             position: 'fixed',
-                            top: 90,
-                            right: 32,
+                            top: 100,
+                            right: 30,
                             zIndex: 1300,
                             minWidth: 350,
                             borderRadius: 3, 
@@ -1141,6 +1166,16 @@ const Dashboard = () => {
             >
                 <MenuItem 
                     onClick={() => {
+                        setNewFileName(selectedFile?.originalFileName || '');
+                        setRenameDialogOpen(true);
+                    }}
+                    sx={{ py: 1.5 }}
+                >
+                    <Edit sx={{ mr: 2, fontSize: 22, color: '#667eea' }} /> 
+                    <Typography sx={{ fontWeight: 500 }}>Rename</Typography>
+                </MenuItem>
+                <MenuItem 
+                    onClick={() => {
                         setShareDialogOpen(true);
                     }}
                     sx={{ py: 1.5 }}
@@ -1286,6 +1321,86 @@ const Dashboard = () => {
                         }}
                     >
                         Share
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Rename Dialog */}
+            <Dialog 
+                open={renameDialogOpen} 
+                onClose={() => {
+                    setRenameDialogOpen(false);
+                    setNewFileName('');
+                    handleMenuClose();
+                }}
+                PaperProps={{
+                    sx: { borderRadius: 3, minWidth: 450 }
+                }}
+            >
+                <DialogTitle sx={{ fontWeight: 700, fontSize: '1.5rem', pb: 1 }}>
+                    Rename File
+                </DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 1 }}>
+                        Current name: <strong>{selectedFile?.originalFileName}</strong>
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+                        Enter a new name for this file
+                    </Typography>
+                    <TextField
+                        fullWidth
+                        label="New File Name"
+                        type="text"
+                        value={newFileName}
+                        onChange={(e) => setNewFileName(e.target.value)}
+                        placeholder="document.pdf"
+                        autoFocus
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                            }
+                        }}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <Edit sx={{ color: '#667eea' }} />
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 3 }}>
+                    <Button 
+                        onClick={() => {
+                            setRenameDialogOpen(false);
+                            setNewFileName('');
+                        }}
+                        sx={{ 
+                            textTransform: 'none', 
+                            fontWeight: 600,
+                            color: '#6e7c87'
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={handleRenameFile}
+                        variant="contained"
+                        disabled={!newFileName || newFileName === selectedFile?.originalFileName}
+                        sx={{
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            px: 3,
+                            borderRadius: 2,
+                            boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
+                                boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
+                            }
+                        }}
+                    >
+                        Rename
                     </Button>
                 </DialogActions>
             </Dialog>

@@ -86,4 +86,19 @@ public class FileController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    // File Rename
+    @PutMapping("/rename/{fileId}")
+    public ResponseEntity<FileMetadata> renameFile(
+            @PathVariable String fileId,
+            @RequestParam String newFileName,
+            Authentication authentication) {
+        try {
+            String userEmail = authentication.getName();
+            FileMetadata renamedFile = fileService.renameFile(fileId, newFileName, userEmail);
+            return ResponseEntity.ok(renamedFile);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }

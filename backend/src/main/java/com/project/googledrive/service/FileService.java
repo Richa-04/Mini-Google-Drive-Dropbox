@@ -134,4 +134,20 @@ public class FileService {
                 .filter(file -> file.getSharedWith().contains(userEmail))
                 .collect(Collectors.toList());
     }
+    
+    // Rename File
+    public FileMetadata renameFile(String fileId, String newFileName, String userEmail) throws Exception {
+        FileMetadata metadata = fileRepository.findById(fileId)
+                .orElseThrow(() -> new RuntimeException("File not found"));
+        
+        // Check if user is the owner
+        if (!metadata.getOwnerEmail().equals(userEmail)) {
+            throw new RuntimeException("You don't have permission to rename this file");
+        }
+        
+        // Update the original file name
+        metadata.setOriginalFileName(newFileName);
+        
+        return fileRepository.save(metadata);
+    }
 }
