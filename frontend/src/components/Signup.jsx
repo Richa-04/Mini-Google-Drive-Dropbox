@@ -7,12 +7,12 @@ import { Email, Lock, Visibility, VisibilityOff, Person, HowToReg } from '@mui/i
 import logo from '../assets/logo.png';
 
 const Signup = () => {
-    const [formData, setFormData] = useState({ 
-        firstName: '', 
-        lastName: '', 
-        email: '', 
-        password: '', 
-        confirmPassword: '' 
+    const [formData, setFormData] = useState({
+        firstName: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -45,7 +45,26 @@ const Signup = () => {
             await authService.signup({ firstName, lastName, email, password });
             navigate('/login');
         } catch (err) {
-            setError(err.response?.data?.message || 'Signup failed. Please try again.');
+            // DEBUG: Log error details to console
+            console.log('=== ERROR DEBUG INFO ===');
+            console.log('Full Error Object:', err);
+            console.log('Error Status:', err.response?.status);
+            console.log('Error Data:', err.response?.data);
+            console.log('Error Message:', err.response?.data?.message);
+            console.log('========================');
+
+            // Check for duplicate email error (includes 403)
+            if (err.response?.status === 403 ||
+                err.response?.status === 409 ||
+                err.response?.status === 400 ||
+                err.response?.data?.message?.toLowerCase().includes('already exists') ||
+                err.response?.data?.message?.toLowerCase().includes('duplicate')) {
+                setError('⚠️ An account with this email already exists. Please login or use a different email.');
+            } else if (err.response?.data?.message) {
+                setError(err.response.data.message);
+            } else {
+                setError('Signup failed. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -108,9 +127,9 @@ const Signup = () => {
                     </Box>
 
                     {error && (
-                        <Alert 
-                            severity="error" 
-                            sx={{ mb: 3, borderRadius: 2 }} 
+                        <Alert
+                            severity="error"
+                            sx={{ mb: 3, borderRadius: 2 }}
                             onClose={() => setError('')}
                         >
                             {error}
@@ -283,10 +302,10 @@ const Signup = () => {
                         <Box sx={{ textAlign: 'center', mt: 3 }}>
                             <Typography variant="body1" sx={{ color: '#6e7c87' }}>
                                 Already have an account?{' '}
-                                <Link 
-                                    to="/login" 
-                                    style={{ 
-                                        textDecoration: 'none', 
+                                <Link
+                                    to="/login"
+                                    style={{
+                                        textDecoration: 'none',
                                         color: '#667eea',
                                         fontWeight: 600
                                     }}

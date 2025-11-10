@@ -18,7 +18,7 @@ public class AuthService {
     
     public JwtResponse signup(SignupRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new IllegalArgumentException("Email already exists");
         }
         
         User user = new User();

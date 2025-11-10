@@ -619,6 +619,7 @@ const Dashboard = () => {
                                 overflow: 'hidden',
                                 border: '1px solid #e8edf2',
                                 boxShadow: '0 2px 12px rgba(0, 0, 0, 0.08)',
+                                mb: 12,
                             }}
                         >
                             {filteredFiles.map((file, index) => (
