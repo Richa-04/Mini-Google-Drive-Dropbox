@@ -41,6 +41,7 @@ Our solution addresses these challenges with cutting-edge technology and intuiti
 - **Upload & Storage**: Drag-and-drop file upload with real-time progress
 - **Cloud Storage**: Automatic upload to AWS S3 with encryption
 - **Download & Preview**: View files directly in browser or download
+- **Rename Files**: Easily rename files without re-uploading
 - **Delete Operations**: Secure file deletion with confirmation
 - **File Organization**: Smart categorization and sorting
 
@@ -520,33 +521,14 @@ Password: password123
 4. You'll be redirected to login page
 5. Login with your credentials
 
-### Uploading Files
-1. Click the floating **+** button (bottom right)
-2. Select a file from your computer
-3. File is automatically:
-   - Encrypted with AES-256
-   - Uploaded to AWS S3
-   - Metadata saved to MongoDB
-4. View your file in the dashboard immediately
+### File Handling
 
-### Sharing Files
-1. Click the **3 dots** menu on any file
-2. Select **"Share"**
-3. Enter recipient's email address
-4. Click **"Share"**
-5. Recipient can now access the file in their "Shared with me" section
-
-### Viewing Shared Files
-1. Click **"Shared with me"** in the sidebar
-2. View all files others have shared with you
-3. Open, download, or manage shared files
-4. Shared files are clearly labeled
-
-### Searching for Files
-1. Use the search bar at the top
-2. Type filename or keywords
-3. Results filter in real-time
-4. Search works across all views (Dashboard, My Documents, Shared)
+1. Perform all file actions from the dashboard:
+2. Upload: Click the floating +, choose a file — it’s auto-encrypted (AES-256), uploaded to AWS S3, and logged in MongoDB.
+3. Share: Hit ⋮ → Share, enter an email, and your file appears in their Shared with me tab.
+4. View Shared Files: Access Shared with me to open, download, or manage incoming files.
+5. Search: Use the top search bar — results filter instantly across all views.
+6. Rename: Click ⋮ → Rename, edit, and save — updates everywhere in real time.
 
 ---
 
@@ -562,8 +544,6 @@ Password: password123
 - 📝 **Version Control**: Document version history
 - 🎨 **Themes**: Light/dark mode support
 - 📧 **Email Notifications**: Share confirmations and updates
-- 🔄 **Automatic Backup**: Scheduled backups to secondary storage
-- 📈 **Usage Reports**: Detailed analytics for admin users
 
 ---
 
