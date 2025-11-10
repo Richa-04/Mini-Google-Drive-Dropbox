@@ -1,4 +1,3 @@
-cat > .gitignore << 'EOF'
 # Backend (Java/Spring Boot)
 backend/target/
 backend/.mvn/
