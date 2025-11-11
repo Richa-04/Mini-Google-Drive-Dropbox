@@ -36,7 +36,7 @@ const Dashboard = () => {
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
     const [newFileName, setNewFileName] = useState('');
     const [currentView, setCurrentView] = useState('dashboard');
-    
+
     // Filter states
     const [fileTypeFilter, setFileTypeFilter] = useState('all');
     const [dateFilter, setDateFilter] = useState('all');
@@ -47,11 +47,19 @@ const Dashboard = () => {
         loadFiles();
     }, []);
 
+    // ADD THIS NEW useEffect:
+    useEffect(() => {
+        // When search query is cleared, reload all files
+        if (searchQuery === '' && searchMode === 'ai') {
+            loadFiles();
+        }
+    }, [searchQuery]);
+
     const loadFiles = async () => {
         setLoading(true);
         try {
             const response = await fileService.getAllFiles();
-            const sortedFiles = response.data.sort((a, b) => 
+            const sortedFiles = response.data.sort((a, b) =>
                 new Date(b.uploadedAt) - new Date(a.uploadedAt)
             );
             setFiles(sortedFiles);
@@ -90,7 +98,7 @@ const Dashboard = () => {
 
     const handleSearchChange = (e) => {
         setSearchQuery(e.target.value);
-        
+
         // If in normal mode, keep existing behavior
         if (searchMode === 'normal') {
             // Normal search happens through filtering (existing code)
@@ -144,7 +152,7 @@ const Dashboard = () => {
             const response = await fileService.downloadFile(file.id);
             const blob = new Blob([response.data], { type: file.fileType || 'application/octet-stream' });
             const url = window.URL.createObjectURL(blob);
-            
+
             if (file.fileType?.includes('image') || file.fileType?.includes('pdf')) {
                 window.open(url, '_blank');
             } else if (file.fileType?.includes('text')) {
@@ -198,11 +206,11 @@ const Dashboard = () => {
 
     const handleShareFile = async () => {
         if (!selectedFile || !shareEmail) return;
-        
+
         setShareDialogOpen(false);
         setShareEmail('');
         handleMenuClose();
-        
+
         try {
             await fileService.shareFile(selectedFile.id, shareEmail);
             setSuccess(`📤 File shared successfully!`);
@@ -215,12 +223,12 @@ const Dashboard = () => {
 
     const handleRenameFile = async () => {
         if (!selectedFile || !newFileName) return;
-        
+
         setRenameDialogOpen(false);
         const oldName = selectedFile.originalFileName;
         setNewFileName('');
         handleMenuClose();
-        
+
         try {
             const token = localStorage.getItem('token');
             await fetch(`http://localhost:8080/api/files/rename/${selectedFile.id}?newFileName=${encodeURIComponent(newFileName)}`, {
@@ -270,15 +278,15 @@ const Dashboard = () => {
         if (currentView === 'dashboard') {
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            return files.filter(file => 
-                file.ownerEmail === user?.email && 
+            return files.filter(file =>
+                file.ownerEmail === user?.email &&
                 new Date(file.uploadedAt) >= sevenDaysAgo
             );
         } else if (currentView === 'myDocuments') {
             return files.filter(file => file.ownerEmail === user?.email);
         } else if (currentView === 'shared') {
-            return files.filter(file => 
-                file.sharedWith && 
+            return files.filter(file =>
+                file.sharedWith &&
                 file.sharedWith.includes(user?.email) &&
                 file.ownerEmail !== user?.email
             );
@@ -391,9 +399,9 @@ const Dashboard = () => {
                         </ListItemIcon>
                         <ListItemText
                             primary="Dashboard"
-                            primaryTypographyProps={{ 
-                                fontWeight: currentView === 'dashboard' ? 600 : 400, 
-                                color: 'white' 
+                            primaryTypographyProps={{
+                                fontWeight: currentView === 'dashboard' ? 600 : 400,
+                                color: 'white'
                             }}
                         />
                     </ListItem>
@@ -414,7 +422,7 @@ const Dashboard = () => {
                         </ListItemIcon>
                         <ListItemText
                             primary="My Documents"
-                            primaryTypographyProps={{ 
+                            primaryTypographyProps={{
                                 color: 'white',
                                 fontWeight: currentView === 'myDocuments' ? 600 : 400
                             }}
@@ -436,7 +444,7 @@ const Dashboard = () => {
                         </ListItemIcon>
                         <ListItemText
                             primary="Shared with me"
-                            primaryTypographyProps={{ 
+                            primaryTypographyProps={{
                                 color: 'white',
                                 fontWeight: currentView === 'shared' ? 600 : 400
                             }}
@@ -476,7 +484,7 @@ const Dashboard = () => {
                     <Toolbar sx={{ py: 1.5, px: 3 }}>
                         {/* Search Bar with AI Toggle */}
                         <TextField
-                            placeholder={searchMode === 'ai' 
+                            placeholder={searchMode === 'ai'
                                 ? 'Try: "Find Python guides" or "Budget documents"...'
                                 : 'Let\'s find that doc...'}
                             variant="outlined"
@@ -489,7 +497,7 @@ const Dashboard = () => {
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: 8,
                                     bgcolor: searchMode === 'ai' ? '#f0f4ff' : '#f7f9fc',
-                                    '& fieldset': { 
+                                    '& fieldset': {
                                         borderColor: searchMode === 'ai' ? '#667eea' : '#e8edf2',
                                         borderWidth: searchMode === 'ai' ? 2 : 1
                                     },
@@ -556,16 +564,16 @@ const Dashboard = () => {
 
                         <Box sx={{ flexGrow: 1 }} />
 
-                        <IconButton 
+                        <IconButton
                             onClick={(e) => {
                                 setAnchorEl(e.currentTarget);
                                 setSelectedFile(null);
                             }}
                         >
-                            <Avatar 
-                                sx={{ 
+                            <Avatar
+                                sx={{
                                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                    width: 44, 
+                                    width: 44,
                                     height: 44,
                                     fontWeight: 700,
                                     fontSize: '1.2rem'
@@ -578,34 +586,34 @@ const Dashboard = () => {
                 </AppBar>
 
                 {error && (
-                    <Alert 
-                        severity="error" 
-                        sx={{ 
+                    <Alert
+                        severity="error"
+                        sx={{
                             position: 'fixed',
                             top: 100,
                             right: 30,
                             zIndex: 1300,
                             minWidth: 350,
-                            borderRadius: 3, 
+                            borderRadius: 3,
                             boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                        }} 
+                        }}
                         onClose={() => setError('')}
                     >
                         {error}
                     </Alert>
                 )}
                 {success && (
-                    <Alert 
-                        severity="success" 
-                        sx={{ 
+                    <Alert
+                        severity="success"
+                        sx={{
                             position: 'fixed',
                             top: 100,
                             right: 30,
                             zIndex: 1300,
                             minWidth: 350,
-                            borderRadius: 3, 
+                            borderRadius: 3,
                             boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                        }} 
+                        }}
                         onClose={() => setSuccess('')}
                     >
                         {success}
@@ -656,7 +664,7 @@ const Dashboard = () => {
                                     <InsertDriveFile sx={{ fontSize: 28 }} />
                                 </Box>
                                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                                    <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500, fontSize: '1.5rem'}}>
+                                    <Typography variant="body2" sx={{ opacity: 0.9, fontWeight: 500, fontSize: '1.5rem' }}>
                                         Total Documents:
                                     </Typography>
                                     <Typography variant="body2" sx={{ fontWeight: 800, fontSize: '1.5rem' }}>
@@ -768,10 +776,10 @@ const Dashboard = () => {
                                     <FilterList sx={{ fontSize: 16 }} /> File Type
                                 </Typography>
                                 <ButtonGroup variant="outlined" size="small">
-                                    <Button 
+                                    <Button
                                         onClick={() => setFileTypeFilter('all')}
                                         variant={fileTypeFilter === 'all' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: fileTypeFilter === 'all' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: fileTypeFilter === 'all' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -780,10 +788,10 @@ const Dashboard = () => {
                                     >
                                         All
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setFileTypeFilter('pdf')}
                                         variant={fileTypeFilter === 'pdf' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: fileTypeFilter === 'pdf' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: fileTypeFilter === 'pdf' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -792,10 +800,10 @@ const Dashboard = () => {
                                     >
                                         PDF
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setFileTypeFilter('image')}
                                         variant={fileTypeFilter === 'image' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: fileTypeFilter === 'image' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: fileTypeFilter === 'image' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -804,10 +812,10 @@ const Dashboard = () => {
                                     >
                                         Images
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setFileTypeFilter('document')}
                                         variant={fileTypeFilter === 'document' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: fileTypeFilter === 'document' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: fileTypeFilter === 'document' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -824,10 +832,10 @@ const Dashboard = () => {
                                     <CalendarToday sx={{ fontSize: 16 }} /> Date
                                 </Typography>
                                 <ButtonGroup variant="outlined" size="small">
-                                    <Button 
+                                    <Button
                                         onClick={() => setDateFilter('all')}
                                         variant={dateFilter === 'all' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: dateFilter === 'all' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: dateFilter === 'all' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -836,10 +844,10 @@ const Dashboard = () => {
                                     >
                                         All Time
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setDateFilter('today')}
                                         variant={dateFilter === 'today' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: dateFilter === 'today' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: dateFilter === 'today' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -848,10 +856,10 @@ const Dashboard = () => {
                                     >
                                         Today
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setDateFilter('week')}
                                         variant={dateFilter === 'week' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: dateFilter === 'week' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: dateFilter === 'week' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -860,10 +868,10 @@ const Dashboard = () => {
                                     >
                                         This Week
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setDateFilter('month')}
                                         variant={dateFilter === 'month' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: dateFilter === 'month' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: dateFilter === 'month' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -880,10 +888,10 @@ const Dashboard = () => {
                                     <Sort sx={{ fontSize: 16 }} /> Sort By
                                 </Typography>
                                 <ButtonGroup variant="outlined" size="small">
-                                    <Button 
+                                    <Button
                                         onClick={() => setSortBy('newest')}
                                         variant={sortBy === 'newest' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: sortBy === 'newest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: sortBy === 'newest' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -892,10 +900,10 @@ const Dashboard = () => {
                                     >
                                         Newest
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setSortBy('oldest')}
                                         variant={sortBy === 'oldest' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: sortBy === 'oldest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: sortBy === 'oldest' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -904,10 +912,10 @@ const Dashboard = () => {
                                     >
                                         Oldest
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setSortBy('largest')}
                                         variant={sortBy === 'largest' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: sortBy === 'largest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: sortBy === 'largest' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -916,10 +924,10 @@ const Dashboard = () => {
                                     >
                                         Largest
                                     </Button>
-                                    <Button 
+                                    <Button
                                         onClick={() => setSortBy('name')}
                                         variant={sortBy === 'name' ? 'contained' : 'outlined'}
-                                        sx={{ 
+                                        sx={{
                                             background: sortBy === 'name' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
                                             color: sortBy === 'name' ? 'white' : '#667eea',
                                             borderColor: '#667eea',
@@ -939,25 +947,25 @@ const Dashboard = () => {
                                 {getViewTitle()}
                             </Typography>
                             {searchMode === 'ai' && searchQuery && (
-                                <Chip 
+                                <Chip
                                     icon={<SmartToy />}
-                                    label="AI Search Results" 
-                                    sx={{ 
+                                    label="AI Search Results"
+                                    sx={{
                                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                        color: 'white', 
-                                        fontWeight: 600 
-                                    }} 
+                                        color: 'white',
+                                        fontWeight: 600
+                                    }}
                                 />
                             )}
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Chip 
-                                label={`${filteredFiles.length} files`} 
-                                sx={{ 
-                                    bgcolor: '#667eea', 
-                                    color: 'white', 
-                                    fontWeight: 600 
-                                }} 
+                            <Chip
+                                label={`${filteredFiles.length} files`}
+                                sx={{
+                                    bgcolor: '#667eea',
+                                    color: 'white',
+                                    fontWeight: 600
+                                }}
                             />
                             <ButtonGroup variant="outlined" size="small">
                                 <IconButton
@@ -1019,16 +1027,16 @@ const Dashboard = () => {
                             <Folder sx={{ fontSize: 100, color: '#667eea', opacity: 0.3, mb: 2 }} />
                             <Typography variant="h5" sx={{ color: '#1d2129', fontWeight: 600, mb: 1 }}>
                                 {searchMode === 'ai' && searchQuery ? 'No matching documents found' :
-                                 searchQuery ? 'No files found' : 
-                                 currentView === 'dashboard' ? 'No files match your filters' :
-                                 currentView === 'myDocuments' ? 'No files yet' :
-                                 'No files shared with you yet'}
+                                    searchQuery ? 'No files found' :
+                                        currentView === 'dashboard' ? 'No files match your filters' :
+                                            currentView === 'myDocuments' ? 'No files yet' :
+                                                'No files shared with you yet'}
                             </Typography>
                             <Typography variant="body1" color="textSecondary">
                                 {searchMode === 'ai' && searchQuery ? 'Try a different search query or switch to Normal search' :
-                                 searchQuery || fileTypeFilter !== 'all' || dateFilter !== 'all' ? 'Try adjusting your filters' : 
-                                 currentView === 'shared' ? 'Files shared with you will appear here' :
-                                 'Click the + button to upload your first file'}
+                                    searchQuery || fileTypeFilter !== 'all' || dateFilter !== 'all' ? 'Try adjusting your filters' :
+                                        currentView === 'shared' ? 'Files shared with you will appear here' :
+                                            'Click the + button to upload your first file'}
                             </Typography>
                         </Paper>
                     ) : viewMode === 'grid' ? (
@@ -1072,28 +1080,28 @@ const Dashboard = () => {
                                     >
                                         {getFileIcon(file.fileType)}
                                         {file.ownerEmail !== user?.email && (
-                                            <Chip 
-                                                label="Shared" 
-                                                size="small" 
-                                                sx={{ 
+                                            <Chip
+                                                label="Shared"
+                                                size="small"
+                                                sx={{
                                                     position: 'absolute',
                                                     top: 12,
                                                     right: 12,
-                                                    bgcolor: '#e3f2fd', 
+                                                    bgcolor: '#e3f2fd',
                                                     color: '#1976d2',
                                                     fontWeight: 600,
                                                     fontSize: '0.7rem'
-                                                }} 
+                                                }}
                                             />
                                         )}
                                     </Box>
 
                                     <Box sx={{ p: 2 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
-                                            <Typography 
-                                                variant="subtitle1" 
-                                                sx={{ 
-                                                    fontWeight: 600, 
+                                            <Typography
+                                                variant="subtitle1"
+                                                sx={{
+                                                    fontWeight: 600,
                                                     color: '#1d2129',
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
@@ -1150,7 +1158,7 @@ const Dashboard = () => {
                                         p: 3,
                                         borderBottom: index < filteredFiles.length - 1 ? '1px solid #e8edf2' : 'none',
                                         transition: 'all 0.2s ease',
-                                        '&:hover': { 
+                                        '&:hover': {
                                             bgcolor: '#f7f9fc',
                                             transform: 'translateX(8px)',
                                         },
@@ -1179,16 +1187,16 @@ const Dashboard = () => {
                                         <Typography variant="h6" sx={{ fontWeight: 600, color: '#1d2129', mb: 0.5 }}>
                                             {file.originalFileName}
                                             {file.ownerEmail !== user?.email && (
-                                                <Chip 
-                                                    label="Shared" 
-                                                    size="small" 
-                                                    sx={{ 
-                                                        ml: 1, 
-                                                        bgcolor: '#e3f2fd', 
+                                                <Chip
+                                                    label="Shared"
+                                                    size="small"
+                                                    sx={{
+                                                        ml: 1,
+                                                        bgcolor: '#e3f2fd',
                                                         color: '#1976d2',
                                                         fontWeight: 600,
                                                         fontSize: '0.7rem'
-                                                    }} 
+                                                    }}
                                                 />
                                             )}
                                         </Typography>
@@ -1263,45 +1271,45 @@ const Dashboard = () => {
                 open={Boolean(anchorEl) && Boolean(selectedFile)}
                 onClose={handleMenuClose}
                 PaperProps={{
-                    sx: { 
-                        borderRadius: 3, 
+                    sx: {
+                        borderRadius: 3,
                         minWidth: 200,
                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                     }
                 }}
             >
-                <MenuItem 
+                <MenuItem
                     onClick={() => {
                         setNewFileName(selectedFile?.originalFileName || '');
                         setRenameDialogOpen(true);
                     }}
                     sx={{ py: 1.5 }}
                 >
-                    <Edit sx={{ mr: 2, fontSize: 22, color: '#667eea' }} /> 
+                    <Edit sx={{ mr: 2, fontSize: 22, color: '#667eea' }} />
                     <Typography sx={{ fontWeight: 500 }}>Rename</Typography>
                 </MenuItem>
-                <MenuItem 
+                <MenuItem
                     onClick={() => {
                         setShareDialogOpen(true);
                     }}
                     sx={{ py: 1.5 }}
                 >
-                    <Share sx={{ mr: 2, fontSize: 22, color: '#667eea' }} /> 
+                    <Share sx={{ mr: 2, fontSize: 22, color: '#667eea' }} />
                     <Typography sx={{ fontWeight: 500 }}>Share</Typography>
                 </MenuItem>
-                <MenuItem 
+                <MenuItem
                     onClick={() => {
                         if (selectedFile) handleDownload(selectedFile);
                         handleMenuClose();
                     }}
                     sx={{ py: 1.5 }}
                 >
-                    <Download sx={{ mr: 2, fontSize: 22, color: '#667eea' }} /> 
+                    <Download sx={{ mr: 2, fontSize: 22, color: '#667eea' }} />
                     <Typography sx={{ fontWeight: 500 }}>Download</Typography>
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={handleDelete} sx={{ py: 1.5, color: 'error.main' }}>
-                    <Delete sx={{ mr: 2, fontSize: 22 }} /> 
+                    <Delete sx={{ mr: 2, fontSize: 22 }} />
                     <Typography sx={{ fontWeight: 500 }}>Delete</Typography>
                 </MenuItem>
             </Menu>
@@ -1311,8 +1319,8 @@ const Dashboard = () => {
                 open={Boolean(anchorEl) && !selectedFile}
                 onClose={handleMenuClose}
                 PaperProps={{
-                    sx: { 
-                        borderRadius: 3, 
+                    sx: {
+                        borderRadius: 3,
                         minWidth: 280,
                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                     }
@@ -1322,10 +1330,10 @@ const Dashboard = () => {
             >
                 <Box sx={{ px: 3, py: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                        <Avatar 
-                            sx={{ 
+                        <Avatar
+                            sx={{
                                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                width: 56, 
+                                width: 56,
                                 height: 56,
                                 fontSize: '1.5rem',
                                 fontWeight: 700
@@ -1345,13 +1353,13 @@ const Dashboard = () => {
                 </Box>
                 <Divider />
                 <MenuItem onClick={handleLogout} sx={{ py: 2, px: 3 }}>
-                    <Logout sx={{ mr: 2, fontSize: 22, color: '#667eea' }} /> 
+                    <Logout sx={{ mr: 2, fontSize: 22, color: '#667eea' }} />
                     <Typography sx={{ fontWeight: 600 }}>Logout</Typography>
                 </MenuItem>
             </Menu>
 
-            <Dialog 
-                open={shareDialogOpen} 
+            <Dialog
+                open={shareDialogOpen}
                 onClose={() => {
                     setShareDialogOpen(false);
                     setShareEmail('');
@@ -1394,20 +1402,20 @@ const Dashboard = () => {
                     />
                 </DialogContent>
                 <DialogActions sx={{ px: 3, pb: 3 }}>
-                    <Button 
+                    <Button
                         onClick={() => {
                             setShareDialogOpen(false);
                             setShareEmail('');
                         }}
-                        sx={{ 
-                            textTransform: 'none', 
+                        sx={{
+                            textTransform: 'none',
                             fontWeight: 600,
                             color: '#6e7c87'
                         }}
                     >
                         Cancel
                     </Button>
-                    <Button 
+                    <Button
                         onClick={handleShareFile}
                         variant="contained"
                         disabled={!shareEmail}
@@ -1429,8 +1437,8 @@ const Dashboard = () => {
                 </DialogActions>
             </Dialog>
 
-            <Dialog 
-                open={renameDialogOpen} 
+            <Dialog
+                open={renameDialogOpen}
                 onClose={() => {
                     setRenameDialogOpen(false);
                     setNewFileName('');
@@ -1473,20 +1481,20 @@ const Dashboard = () => {
                     />
                 </DialogContent>
                 <DialogActions sx={{ px: 3, pb: 3 }}>
-                    <Button 
+                    <Button
                         onClick={() => {
                             setRenameDialogOpen(false);
                             setNewFileName('');
                         }}
-                        sx={{ 
-                            textTransform: 'none', 
+                        sx={{
+                            textTransform: 'none',
                             fontWeight: 600,
                             color: '#6e7c87'
                         }}
                     >
                         Cancel
                     </Button>
-                    <Button 
+                    <Button
                         onClick={handleRenameFile}
                         variant="contained"
                         disabled={!newFileName || newFileName === selectedFile?.originalFileName}
