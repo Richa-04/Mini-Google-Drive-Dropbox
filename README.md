@@ -316,6 +316,6 @@ POST   /api/files/share              # Share with email
 
 ---
 
-**🚀 [View Demo](#) • 📧 [Contact](mailto:padhariya.r@northeastern.edu)**
+** 📧 [Contact](mailto:padhariya.r@northeastern.edu)**
 
 </div>
