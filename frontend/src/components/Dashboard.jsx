@@ -12,7 +12,7 @@ import {
     CloudUpload, Download, Delete, Logout, InsertDriveFile, Dashboard as DashboardIcon,
     Folder, PeopleAlt, Search, Image, PictureAsPdf, Description,
     MoreVert, Add, Share, Email, FilterList, Sort, CalendarToday, ViewList, ViewModule, Edit,
-    SmartToy
+    SmartToy, ExpandMore
 } from '@mui/icons-material';
 import logo from '../assets/logo.png';
 
@@ -40,11 +40,13 @@ const Dashboard = () => {
     const [currentView, setCurrentView] = useState('dashboard');
     const [allFiles, setAllFiles] = useState([]); // ADD THIS LINE
 
+
     // Filter states
     const [fileTypeFilter, setFileTypeFilter] = useState('all');
     const [dateFilter, setDateFilter] = useState('all');
     const [sortBy, setSortBy] = useState('newest');
     const [viewMode, setViewMode] = useState(localStorage.getItem('viewMode') || 'grid');
+    const [expandedFiles, setExpandedFiles] = useState(new Set()); // Track which files are expanded
 
     useEffect(() => {
         loadFiles();
@@ -237,56 +239,56 @@ const Dashboard = () => {
     };
 
     const handleShareFile = async () => {
-    if (!selectedFile || !shareEmail) return;
-    
-    const fileToShare = selectedFile;
-    
-    // Check if email is already in sharedWith list
-    if (fileToShare.sharedWith && fileToShare.sharedWith.includes(shareEmail)) {
-        setError(`File is already shared with ${shareEmail}!`);
+        if (!selectedFile || !shareEmail) return;
+
+        const fileToShare = selectedFile;
+
+        // Check if email is already in sharedWith list
+        if (fileToShare.sharedWith && fileToShare.sharedWith.includes(shareEmail)) {
+            setError(`File is already shared with ${shareEmail}!`);
+            setShareDialogOpen(false);
+            setShareEmail('');
+            handleMenuClose();
+            return;
+        }
+
+        // Check if trying to share with owner
+        if (fileToShare.ownerEmail === shareEmail) {
+            setError(`You cannot share a file with yourself!`);
+            setShareDialogOpen(false);
+            setShareEmail('');
+            handleMenuClose();
+            return;
+        }
+
         setShareDialogOpen(false);
         setShareEmail('');
         handleMenuClose();
-        return;
-    }
-    
-    // Check if trying to share with owner
-    if (fileToShare.ownerEmail === shareEmail) {
-        setError(`You cannot share a file with yourself!`);
-        setShareDialogOpen(false);
-        setShareEmail('');
-        handleMenuClose();
-        return;
-    }
-    
-    setShareDialogOpen(false);
-    setShareEmail('');
-    handleMenuClose();
-    
-    try {
-        await fileService.shareFile(fileToShare.id, shareEmail);
-        
-        // Update only the shared file in the state (no page refresh)
-        const updateFiles = (prevFiles) => prevFiles.map(file => 
-            file.id === fileToShare.id 
-                ? { 
-                    ...file, 
-                    sharedWith: file.sharedWith 
-                        ? [...file.sharedWith, shareEmail] 
-                        : [shareEmail] 
-                  }
-                : file
-        );
-        setAllFiles(updateFiles);
-        setFiles(updateFiles);
-        
-        setSuccess(`📤 File shared successfully with ${shareEmail}!`);
-    } catch (err) {
-        // Don't reload on error, just show error message
-        setError('Failed to share file. The user might already have access.');
-        console.error('Share error:', err);
-    }
-};
+
+        try {
+            await fileService.shareFile(fileToShare.id, shareEmail);
+
+            // Update only the shared file in the state (no page refresh)
+            const updateFiles = (prevFiles) => prevFiles.map(file =>
+                file.id === fileToShare.id
+                    ? {
+                        ...file,
+                        sharedWith: file.sharedWith
+                            ? [...file.sharedWith, shareEmail]
+                            : [shareEmail]
+                    }
+                    : file
+            );
+            setAllFiles(updateFiles);
+            setFiles(updateFiles);
+
+            setSuccess(`📤 File shared successfully with ${shareEmail}!`);
+        } catch (err) {
+            // Don't reload on error, just show error message
+            setError('Failed to share file. The user might already have access.');
+            console.error('Share error:', err);
+        }
+    };
 
     const handleRenameFile = async () => {
         if (!selectedFile || !newFileName) return;
@@ -349,6 +351,18 @@ const Dashboard = () => {
         if (currentView === 'myDocuments') return '📂 My Documents';
         if (currentView === 'shared') return '👥 Shared with Me';
         return '📁 Files';
+    };
+
+    const toggleFileExpand = (fileId) => {
+        setExpandedFiles(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(fileId)) {
+                newSet.delete(fileId);
+            } else {
+                newSet.add(fileId);
+            }
+            return newSet;
+        });
     };
 
     const getFilteredFilesByView = () => {
@@ -1236,16 +1250,44 @@ const Dashboard = () => {
                                             >
                                                 {file.originalFileName}
                                             </Typography>
-                                            <IconButton
-                                                size="small"
-                                                sx={{
-                                                    bgcolor: '#f7f9fc',
-                                                    '&:hover': { bgcolor: '#e8edf2' }
-                                                }}
-                                                onClick={(e) => handleMenuOpen(e, file)}
-                                            >
-                                                <MoreVert fontSize="small" />
-                                            </IconButton>
+
+                                            {/* Icon Buttons */}
+                                            <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                                {/* Expand/Collapse Button */}
+                                                {(file.keywords?.length > 0 || file.summary) && (
+                                                    <IconButton
+                                                        size="small"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleFileExpand(file.id);
+                                                        }}
+                                                        sx={{
+                                                            bgcolor: '#f7f9fc',
+                                                            color: '#667eea',
+                                                            transform: expandedFiles.has(file.id) ? 'rotate(180deg)' : 'rotate(0deg)',
+                                                            transition: 'transform 0.3s ease',
+                                                            '&:hover': {
+                                                                bgcolor: '#e8edf2',
+                                                                color: '#5568d3'
+                                                            }
+                                                        }}
+                                                    >
+                                                        <ExpandMore fontSize="small" />
+                                                    </IconButton>
+                                                )}
+
+                                                {/* 3-Dot Menu */}
+                                                <IconButton
+                                                    size="small"
+                                                    sx={{
+                                                        bgcolor: '#f7f9fc',
+                                                        '&:hover': { bgcolor: '#e8edf2' }
+                                                    }}
+                                                    onClick={(e) => handleMenuOpen(e, file)}
+                                                >
+                                                    <MoreVert fontSize="small" />
+                                                </IconButton>
+                                            </Box>
                                         </Box>
                                         <Typography variant="caption" sx={{ color: '#6e7c87', display: 'block' }}>
                                             {formatFileSize(file.fileSize)}
@@ -1258,6 +1300,62 @@ const Dashboard = () => {
                                                 Owner: {file.ownerEmail}
                                             </Typography>
                                         )}
+
+                                        {/* Keywords */}
+                                        {file.keywords && file.keywords.length > 0 && (
+                                            <Box sx={{ mt: 1.5, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                                {file.keywords.slice(0, 3).map((keyword, idx) => (
+                                                    <Chip
+                                                        key={idx}
+                                                        label={keyword}
+                                                        size="small"
+                                                        sx={{
+                                                            bgcolor: '#f0f4ff',
+                                                            color: '#667eea',
+                                                            fontWeight: 600,
+                                                            fontSize: '0.65rem',
+                                                            height: 20,
+                                                            '& .MuiChip-label': { px: 1 }
+                                                        }}
+                                                    />
+                                                ))}
+                                                {file.keywords.length > 3 && (
+                                                    <Chip
+                                                        label={`+${file.keywords.length - 3}`}
+                                                        size="small"
+                                                        sx={{
+                                                            bgcolor: '#e8edf2',
+                                                            color: '#6e7c87',
+                                                            fontWeight: 600,
+                                                            fontSize: '0.65rem',
+                                                            height: 20,
+                                                            '& .MuiChip-label': { px: 1 }
+                                                        }}
+                                                    />
+                                                )}
+                                            </Box>
+                                        )}
+
+                                        {/* Summary */}
+                                        {file.summary && (
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    color: '#6e7c87',
+                                                    display: 'block',
+                                                    mt: 1,
+                                                    lineHeight: 1.4,
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: 'vertical',
+                                                }}
+                                            >
+                                                {file.summary}
+                                            </Typography>
+                                        )}
+
+
                                     </Box>
                                 </Paper>
                             ))}
@@ -1274,91 +1372,181 @@ const Dashboard = () => {
                             }}
                         >
                             {filteredFiles.map((file, index) => (
-                                <Box
-                                    key={file.id}
-                                    sx={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        p: 3,
-                                        borderBottom: index < filteredFiles.length - 1 ? '1px solid #e8edf2' : 'none',
-                                        transition: 'all 0.2s ease',
-                                        '&:hover': {
-                                            bgcolor: '#f7f9fc',
-                                            transform: 'translateX(8px)',
-                                        },
-                                        cursor: 'pointer'
-                                    }}
-                                >
+                                <Box key={file.id}>
                                     <Box
                                         sx={{
-                                            width: 64,
-                                            height: 64,
-                                            borderRadius: 3,
-                                            bgcolor: file.fileType?.includes('pdf') ? '#ffebee' :
-                                                file.fileType?.includes('image') ? '#e8f5e9' :
-                                                    file.fileType?.includes('text') ? '#e3f2fd' : '#f5f5f5',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            justifyContent: 'center',
-                                            mr: 3,
-                                            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-                                        }}
-                                    >
-                                        {getFileIcon(file.fileType)}
-                                    </Box>
-
-                                    <Box sx={{ flexGrow: 1 }}>
-                                        <Typography variant="h6" sx={{ fontWeight: 600, color: '#1d2129', mb: 0.5 }}>
-                                            {file.originalFileName}
-                                            {file.ownerEmail !== user?.email && (
-                                                <Chip
-                                                    label="Shared"
-                                                    size="small"
-                                                    sx={{
-                                                        ml: 1,
-                                                        bgcolor: '#e3f2fd',
-                                                        color: '#1976d2',
-                                                        fontWeight: 600,
-                                                        fontSize: '0.7rem'
-                                                    }}
-                                                />
-                                            )}
-                                        </Typography>
-                                        <Typography variant="body2" sx={{ color: '#6e7c87' }}>
-                                            {formatFileSize(file.fileSize)} • {new Date(file.uploadedAt).toLocaleDateString()}
-                                            {file.ownerEmail !== user?.email && ` • Owner: ${file.ownerEmail}`}
-                                        </Typography>
-                                    </Box>
-
-                                    <Button
-                                        variant="contained"
-                                        sx={{
-                                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                            color: 'white',
-                                            textTransform: 'none',
-                                            fontWeight: 600,
-                                            px: 3,
-                                            borderRadius: 2,
-                                            mr: 2,
-                                            boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                                            p: 3,
+                                            borderBottom: index < filteredFiles.length - 1 ? '1px solid #e8edf2' : 'none',
+                                            transition: 'all 0.2s ease',
                                             '&:hover': {
-                                                background: 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
-                                                boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
-                                            }
+                                                bgcolor: '#f7f9fc',
+                                            },
+                                            cursor: 'pointer'
                                         }}
-                                        onClick={() => handleOpenFile(file)}
                                     >
-                                        Open
-                                    </Button>
-                                    <IconButton
-                                        sx={{
-                                            bgcolor: '#f7f9fc',
-                                            '&:hover': { bgcolor: '#e8edf2' }
-                                        }}
-                                        onClick={(e) => handleMenuOpen(e, file)}
-                                    >
-                                        <MoreVert />
-                                    </IconButton>
+                                        <Box
+                                            sx={{
+                                                width: 64,
+                                                height: 64,
+                                                borderRadius: 3,
+                                                bgcolor: file.fileType?.includes('pdf') ? '#ffebee' :
+                                                    file.fileType?.includes('image') ? '#e8f5e9' :
+                                                        file.fileType?.includes('text') ? '#e3f2fd' : '#f5f5f5',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                mr: 3,
+                                                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                            }}
+                                        >
+                                            {getFileIcon(file.fileType)}
+                                        </Box>
+
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Typography variant="h6" sx={{ fontWeight: 600, color: '#1d2129', mb: 0.5 }}>
+                                                {file.originalFileName}
+                                                {file.ownerEmail !== user?.email && (
+                                                    <Chip
+                                                        label="Shared"
+                                                        size="small"
+                                                        sx={{
+                                                            ml: 1,
+                                                            bgcolor: '#e3f2fd',
+                                                            color: '#1976d2',
+                                                            fontWeight: 600,
+                                                            fontSize: '0.7rem'
+                                                        }}
+                                                    />
+                                                )}
+                                            </Typography>
+                                            <Typography variant="body2" sx={{ color: '#6e7c87' }}>
+                                                {formatFileSize(file.fileSize)} • {new Date(file.uploadedAt).toLocaleDateString()}
+                                                {file.ownerEmail !== user?.email && ` • Owner: ${file.ownerEmail}`}
+                                            </Typography>
+                                        </Box>
+
+                                        {/* Expand/Collapse Icon */}
+                                        {(file.keywords?.length > 0 || file.summary) && (
+                                            <IconButton
+                                                onClick={() => toggleFileExpand(file.id)}
+                                                size="small"
+                                                sx={{
+                                                    mr: 3,  // Increased from 2 to 3 for more space
+                                                    color: '#667eea',
+                                                    transform: expandedFiles.has(file.id) ? 'rotate(180deg)' : 'rotate(0deg)',
+                                                    transition: 'transform 0.3s ease',
+                                                    '&:hover': {
+                                                        bgcolor: '#f0f4ff',
+                                                    },
+                                                    '& .MuiSvgIcon-root': {
+                                                        fontSize: 32,
+                                                        fontWeight: 'bold',
+                                                    }
+                                                }}
+                                            >
+                                                <ExpandMore />
+                                            </IconButton>
+                                        )}
+
+                                        <Button
+                                            variant="contained"
+                                            sx={{
+                                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                color: 'white',
+                                                textTransform: 'none',
+                                                fontWeight: 600,
+                                                px: 3,
+                                                borderRadius: 2,
+                                                mr: 2,
+                                                boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                                                '&:hover': {
+                                                    background: 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
+                                                    boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
+                                                }
+                                            }}
+                                            onClick={() => handleOpenFile(file)}
+                                        >
+                                            Open
+                                        </Button>
+                                        <IconButton
+                                            sx={{
+                                                bgcolor: '#f7f9fc',
+                                                '&:hover': { bgcolor: '#e8edf2' }
+                                            }}
+                                            onClick={(e) => handleMenuOpen(e, file)}
+                                        >
+                                            <MoreVert />
+                                        </IconButton>
+                                    </Box>
+
+                                    {/* 🆕 Expanded Section with Keywords & Summary */}
+                                    {expandedFiles.has(file.id) && (file.keywords?.length > 0 || file.summary) && ( 
+                                        <Box
+                                            sx={{
+                                                px: 3,
+                                                pb: 3,
+                                                bgcolor: '#f7f9fc',
+                                                borderBottom: index < filteredFiles.length - 1 ? '1px solid #e8edf2' : 'none',
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    bgcolor: 'white',
+                                                    borderRadius: 2,
+                                                    p: 2.5,
+                                                    border: '1px solid #e8edf2',
+                                                }}
+                                            >
+                                                {/* Keywords */}
+                                                {file.keywords && file.keywords.length > 0 && (
+                                                    <Box sx={{ mb: 2 }}>
+                                                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#667eea', mb: 1, display: 'block' }}>
+                                                            🏷️ KEYWORDS
+                                                        </Typography>
+                                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
+                                                            {file.keywords.map((keyword, idx) => (
+                                                                <Chip
+                                                                    key={idx}
+                                                                    label={keyword}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        bgcolor: '#f0f4ff',
+                                                                        color: '#667eea',
+                                                                        fontWeight: 600,
+                                                                        fontSize: '0.75rem',
+                                                                        '&:hover': {
+                                                                            bgcolor: '#e0e7ff',
+                                                                        }
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                        </Box>
+                                                    </Box>
+                                                )}
+
+                                                {/* Summary */}
+                                                {file.summary && (
+                                                    <Box>
+                                                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#667eea', mb: 0.5, display: 'block' }}>
+                                                            📝 SUMMARY
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                color: '#6e7c87',
+                                                                lineHeight: 1.6,
+                                                                fontStyle: 'italic',
+                                                            }}
+                                                        >
+                                                            {file.summary}
+                                                        </Typography>
+                                                    </Box>
+                                                )}
+                                            </Box>
+                                        </Box>
+                                    )}
                                 </Box>
                             ))}
                         </Paper>
@@ -1639,7 +1827,7 @@ const Dashboard = () => {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </Box >
     );
 };
 

@@ -27,4 +27,10 @@ public class FileMetadata {
 
     // Field for AI semantic search
     private List<Double> embedding;
+    
+    // Field for NLP keyword extraction
+    private List<String> keywords = new ArrayList<>();
+    
+    // 🆕 NEW: Field for document summary
+    private String summary;
 }

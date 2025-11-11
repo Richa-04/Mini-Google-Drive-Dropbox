@@ -27,6 +27,8 @@ public class FileService {
     private final FileRepository fileRepository;
     private final AmazonS3 amazonS3;
     private final OpenAIService openAIService;
+    private final KeywordExtractionService keywordExtractionService;
+    private final DocumentSummaryService documentSummaryService; // 🆕 NEW
     
     @Value("${aws.s3.bucket.name}")
     private String bucketName;
@@ -61,8 +63,11 @@ public class FileService {
         
         amazonS3.putObject(putObjectRequest);
         
-        // NEW: Generate embedding for text-based files only
+        // Generate embedding, keywords, and summary for text-based files
         List<Double> embedding = null;
+        List<String> keywords = null;
+        String summary = null; // 🆕 NEW
+        
         if (isTextBasedFile(file.getContentType())) {
             try {
                 String extractedText = extractText(fileData, file.getContentType());
@@ -71,12 +76,22 @@ public class FileService {
                     String textForEmbedding = extractedText.length() > 8000 
                         ? extractedText.substring(0, 8000) 
                         : extractedText;
+                    
+                    // Generate embedding
                     embedding = openAIService.generateEmbedding(textForEmbedding);
                     System.out.println("✅ Generated embedding for: " + originalFileName);
+                    
+                    // Extract keywords
+                    keywords = keywordExtractionService.extractKeywords(extractedText);
+                    System.out.println("✅ Extracted keywords for: " + originalFileName + " → " + keywords);
+                    
+                    // 🆕 NEW: Generate summary
+                    summary = documentSummaryService.generateSummary(extractedText);
+                    System.out.println("✅ Generated summary for: " + originalFileName);
                 }
             } catch (Exception e) {
-                System.err.println("Failed to generate embedding for " + originalFileName + ": " + e.getMessage());
-                // Continue without embedding - file still uploads successfully
+                System.err.println("Failed to generate NLP features for " + originalFileName + ": " + e.getMessage());
+                // Continue without NLP features - file still uploads successfully
             }
         }
         
@@ -91,11 +106,13 @@ public class FileService {
         fileMetadata.setUploadedAt(LocalDateTime.now());
         fileMetadata.setEncryptionKey(encryptionKey);
         fileMetadata.setEmbedding(embedding);
+        fileMetadata.setKeywords(keywords != null ? keywords : List.of());
+        fileMetadata.setSummary(summary != null ? summary : ""); // 🆕 NEW
         
         return fileRepository.save(fileMetadata);
     }
     
-    // NEW: Check if file is text-based (for embedding generation)
+    // Check if file is text-based (for embedding generation)
     private boolean isTextBasedFile(String contentType) {
         return contentType != null && (
             contentType.contains("pdf") ||
@@ -106,7 +123,7 @@ public class FileService {
         );
     }
     
-    // NEW: Extract text from files using Apache Tika
+    // Extract text from files using Apache Tika
     private String extractText(byte[] fileData, String contentType) {
         try {
             String text = tika.parseToString(new ByteArrayInputStream(fileData));
@@ -117,7 +134,7 @@ public class FileService {
         }
     }
     
-    // NEW: Semantic search using OpenAI embeddings
+    // Semantic search using OpenAI embeddings
     public List<FileMetadata> searchBySemanticQuery(String query, String userEmail) throws Exception {
         // Generate embedding for the search query
         List<Double> queryEmbedding = openAIService.generateEmbedding(query);
@@ -138,7 +155,7 @@ public class FileService {
         return allFiles.stream()
                 .filter(file -> file.getEmbedding() != null && !file.getEmbedding().isEmpty())
                 .map(file -> new FileWithScore(file, openAIService.calculateSimilarity(queryEmbedding, file.getEmbedding())))
-                .filter(item -> item.score > 0.78) // Only return results with >50% similarity
+                .filter(item -> item.score > 0.78) // Only return results with >78% similarity
                 .sorted((a, b) -> Double.compare(b.score, a.score)) // Sort by relevance
                 .limit(3)
                 .map(item -> item.file)
