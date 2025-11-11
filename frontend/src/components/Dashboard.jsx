@@ -22,6 +22,7 @@ const Dashboard = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const [files, setFiles] = useState([]);
+    const [newFileName, setNewFileName] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -36,8 +37,8 @@ const Dashboard = () => {
     const [shareDialogOpen, setShareDialogOpen] = useState(false);
     const [shareEmail, setShareEmail] = useState('');
     const [renameDialogOpen, setRenameDialogOpen] = useState(false);
-    const [newFileName, setNewFileName] = useState('');
     const [currentView, setCurrentView] = useState('dashboard');
+    const [allFiles, setAllFiles] = useState([]); // ADD THIS LINE
 
     // Filter states
     const [fileTypeFilter, setFileTypeFilter] = useState('all');
@@ -125,7 +126,6 @@ const Dashboard = () => {
         formData.append('file', file);
 
         try {
-            // Simulate progress for better UX
             const progressInterval = setInterval(() => {
                 setUploadProgress(prev => {
                     if (prev >= 90) return prev;
@@ -133,16 +133,21 @@ const Dashboard = () => {
                 });
             }, 200);
 
-            await fileService.uploadFile(formData);
+            const response = await fileService.uploadFile(formData);
 
             clearInterval(progressInterval);
             setUploadProgress(100);
 
             setTimeout(() => {
+                // Add the new file to state instead of reloading all files
+                const newFile = response.data;
+                setFiles(prevFiles => [newFile, ...prevFiles].sort((a, b) =>
+                    new Date(b.uploadedAt) - new Date(a.uploadedAt)
+                ));
+
                 setSuccess(`✨ File "${file.name}" uploaded successfully!`);
                 setUploadProgress(0);
                 setUploadingFileName('');
-                loadFiles();
             }, 500);
         } catch (err) {
             setError('Failed to upload file');
@@ -216,51 +221,101 @@ const Dashboard = () => {
             return;
         }
 
+        const fileToDelete = selectedFile;
+        handleMenuClose();
+
         try {
-            await fileService.deleteFile(selectedFile.id);
+            await fileService.deleteFile(fileToDelete.id);
+
+            // Remove the deleted file from state (no reload)
+            setFiles(prevFiles => prevFiles.filter(file => file.id !== fileToDelete.id));
+
             setSuccess('🗑️ File deleted successfully!');
-            loadFiles();
         } catch (err) {
             setError('Failed to delete file');
         }
-        handleMenuClose();
     };
 
     const handleShareFile = async () => {
-        if (!selectedFile || !shareEmail) return;
-
+    if (!selectedFile || !shareEmail) return;
+    
+    const fileToShare = selectedFile;
+    
+    // Check if email is already in sharedWith list
+    if (fileToShare.sharedWith && fileToShare.sharedWith.includes(shareEmail)) {
+        setError(`File is already shared with ${shareEmail}!`);
         setShareDialogOpen(false);
         setShareEmail('');
         handleMenuClose();
-
-        try {
-            await fileService.shareFile(selectedFile.id, shareEmail);
-            setSuccess(`📤 File shared successfully!`);
-            loadFiles();
-        } catch (err) {
-            setSuccess(`📤 File shared successfully!`);
-            loadFiles();
-        }
-    };
+        return;
+    }
+    
+    // Check if trying to share with owner
+    if (fileToShare.ownerEmail === shareEmail) {
+        setError(`You cannot share a file with yourself!`);
+        setShareDialogOpen(false);
+        setShareEmail('');
+        handleMenuClose();
+        return;
+    }
+    
+    setShareDialogOpen(false);
+    setShareEmail('');
+    handleMenuClose();
+    
+    try {
+        await fileService.shareFile(fileToShare.id, shareEmail);
+        
+        // Update only the shared file in the state (no page refresh)
+        const updateFiles = (prevFiles) => prevFiles.map(file => 
+            file.id === fileToShare.id 
+                ? { 
+                    ...file, 
+                    sharedWith: file.sharedWith 
+                        ? [...file.sharedWith, shareEmail] 
+                        : [shareEmail] 
+                  }
+                : file
+        );
+        setAllFiles(updateFiles);
+        setFiles(updateFiles);
+        
+        setSuccess(`📤 File shared successfully with ${shareEmail}!`);
+    } catch (err) {
+        // Don't reload on error, just show error message
+        setError('Failed to share file. The user might already have access.');
+        console.error('Share error:', err);
+    }
+};
 
     const handleRenameFile = async () => {
         if (!selectedFile || !newFileName) return;
 
+        const fileToRename = selectedFile;
+        const oldName = fileToRename.originalFileName;
         setRenameDialogOpen(false);
-        const oldName = selectedFile.originalFileName;
         setNewFileName('');
         handleMenuClose();
 
         try {
             const token = localStorage.getItem('token');
-            await fetch(`http://localhost:8080/api/files/rename/${selectedFile.id}?newFileName=${encodeURIComponent(newFileName)}`, {
+            await fetch(`http://localhost:8080/api/files/rename/${fileToRename.id}?newFileName=${encodeURIComponent(newFileName)}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
+
+            // Update only the renamed file in state (no reload)
+            setFiles(prevFiles =>
+                prevFiles.map(file =>
+                    file.id === fileToRename.id
+                        ? { ...file, originalFileName: newFileName }
+                        : file
+                )
+            );
+
             setSuccess(`✏️ File renamed from "${oldName}" to "${newFileName}"!`);
-            loadFiles();
         } catch (err) {
             setError('Failed to rename file');
         }

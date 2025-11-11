@@ -26,3 +26,7 @@ file.encryption.key=MySecretEncryptionKey1234567890
 
 # Logging
 logging.level.org.springframework.data.mongodb=DEBUG
+
+# OpenAI Configuration (for AI Semantic Search)
+openai.api.key=YOUR_OPENAI_API_KEY
+openai.model=YOUR_MODEL_NAME
