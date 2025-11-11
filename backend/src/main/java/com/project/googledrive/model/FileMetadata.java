@@ -22,6 +22,9 @@ public class FileMetadata {
     private LocalDateTime uploadedAt;
     private String encryptionKey;
     
-    // New field for sharing
+    // Field for sharing
     private List<String> sharedWith = new ArrayList<>();
+
+    // Field for AI semantic search
+    private List<Double> embedding;
 }

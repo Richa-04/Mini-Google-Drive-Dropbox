@@ -101,4 +101,18 @@ public class FileController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    // AI Search
+    @GetMapping("/search/ai")
+    public ResponseEntity<List<FileMetadata>> aiSearch(
+            @RequestParam String query,
+            Authentication authentication) {
+        try {
+            String userEmail = authentication.getName();
+            List<FileMetadata> results = fileService.searchBySemanticQuery(query, userEmail);
+            return ResponseEntity.ok(results);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
