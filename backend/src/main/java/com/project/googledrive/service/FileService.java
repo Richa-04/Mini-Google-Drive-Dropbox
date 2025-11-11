@@ -138,9 +138,9 @@ public class FileService {
         return allFiles.stream()
                 .filter(file -> file.getEmbedding() != null && !file.getEmbedding().isEmpty())
                 .map(file -> new FileWithScore(file, openAIService.calculateSimilarity(queryEmbedding, file.getEmbedding())))
-                .filter(item -> item.score > 0.5) // Only return results with >50% similarity
+                .filter(item -> item.score > 0.80) // Only return results with >50% similarity
                 .sorted((a, b) -> Double.compare(b.score, a.score)) // Sort by relevance
-                .limit(20)
+                .limit(3)
                 .map(item -> item.file)
                 .collect(Collectors.toList());
     }
