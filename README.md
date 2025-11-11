@@ -316,6 +316,4 @@ POST   /api/files/share              # Share with email
 
 ---
 
-📧 [Contact](mailto:padhariya.r@northeastern.edu)
-
 </div>
