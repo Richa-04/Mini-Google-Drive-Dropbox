@@ -278,17 +278,6 @@ openai.model=text-embedding-ada-002
 logging.level.org.springframework.data.mongodb=DEBUG
 ```
 
-**⚠️ Security Note:** 
-- Never commit your `application.properties` with real credentials to GitHub! 
-- Add it to `.gitignore`:
-  ```bash
-  # In backend/.gitignore
-  src/main/resources/application.properties
-  ```
-- For production deployment, use environment variables or AWS Secrets Manager
-- Generate a strong JWT secret (32+ random characters)
-- Keep your encryption key secure (exactly 32 characters for AES-256)
-
 #### 6️⃣ Build and Run Backend
 ```bash
 # Navigate to backend
@@ -337,7 +326,7 @@ npm start
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
 │  │  Login   │  │  Signup  │  │Dashboard │  │AI Search │   │
 │  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
-└─────────────────────────┬───────────────────────────────────┘
+└─────────────────────────┬─────────────────────────────────┘
                           │ REST API (Axios)
                           ▼
 ┌────────────────────────────────────────────────────────────┐
@@ -493,26 +482,6 @@ Document Upload
 | "research paper" | Academic documents, studies, technical papers |
 
 **Key Advantage:** Finds documents by **meaning**, not just exact keyword matches!
-
----
-
-## ⚡ Performance Optimizations
-
-### Client-Side State Management
-
-Our application implements intelligent dual-state architecture for optimal performance:
-
-**State Architecture:**
-```javascript
-const [allFiles, setAllFiles] = useState([]);  // Complete file list
-const [files, setFiles] = useState([]);        // Filtered display files
-```
-
-**Benefits:**
-- ✅ **Zero Unnecessary Reloads**: Operations update state directly without server calls
-- ✅ **Instant UI Updates**: Files appear/disappear immediately (<100ms)
-- ✅ **Smooth Search Transitions**: Switching between AI/Basic modes doesn't reload files
-- ✅ **Better UX**: No loading spinners for simple operations
 
 ---
 
@@ -710,23 +679,6 @@ Password: password123
 - **Rename**: Click ⋮ → Rename → Edit → Updates everywhere instantly
 - **Delete**: Click ⋮ → Delete → Confirm → Removed from S3 and MongoDB
 - **Download**: Click ⋮ → Download or click "Open" button
-
----
-
-## 🔮 Future Enhancements
-
-### Planned Features
-- 🖼️ **Image Analysis**: OpenAI Vision API for visual content keywords
-- 📱 **Mobile App**: Native iOS/Android applications
-- 📊 **Analytics Dashboard**: NLP insights and document statistics
-- 🔔 **Real-time Notifications**: Push notifications for shares and uploads
-- 👥 **Team Workspaces**: Collaborative folders with shared NLP insights
-- 🏷️ **Smart Auto-Categorization**: ML-based folder organization
-- 📝 **Version Control**: Document version history with diff summaries
-- 🎨 **Themes**: Light/dark mode support
-- 📧 **Email Notifications**: Share confirmations and AI summaries
-- 🗣️ **Multi-language NLP**: Support for documents in multiple languages
-- 📈 **Sentiment Analysis**: Understand document tone and sentiment
 
 ---
 
