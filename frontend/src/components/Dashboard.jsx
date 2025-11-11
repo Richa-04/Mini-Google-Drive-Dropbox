@@ -553,7 +553,7 @@ const Dashboard = () => {
                                 bgcolor: '#ffd54f',
                                 height: 8,
                                 borderRadius: 4,
-                                width: `${Math.min((files.reduce((acc, f) => acc + f.fileSize, 0) / 15000000) * 100, 100)}%`
+                                width: `${Math.min((files.reduce((acc, f) => acc + f.fileSize, 0) / 15000000000) * 100, 100)}%`
                             }}
                         />
                     </Box>
@@ -1289,6 +1289,7 @@ const Dashboard = () => {
                                                 </IconButton>
                                             </Box>
                                         </Box>
+
                                         <Typography variant="caption" sx={{ color: '#6e7c87', display: 'block' }}>
                                             {formatFileSize(file.fileSize)}
                                         </Typography>
@@ -1301,9 +1302,9 @@ const Dashboard = () => {
                                             </Typography>
                                         )}
 
-                                        {/* Keywords */}
-                                        {file.keywords && file.keywords.length > 0 && (
-                                            <Box sx={{ mt: 1.5, display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {/* Keywords - Only show when expanded */}
+                                        {expandedFiles.has(file.id) && file.keywords && file.keywords.length > 0 && (
+                                            <Box sx={{ mt: 1.5, pt: 1.5, borderTop: '1px solid #e8edf2', display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                                 {file.keywords.slice(0, 3).map((keyword, idx) => (
                                                     <Chip
                                                         key={idx}
@@ -1336,8 +1337,8 @@ const Dashboard = () => {
                                             </Box>
                                         )}
 
-                                        {/* Summary */}
-                                        {file.summary && (
+                                        {/* Summary - Only show when expanded */}
+                                        {expandedFiles.has(file.id) && file.summary && (
                                             <Typography
                                                 variant="caption"
                                                 sx={{
@@ -1354,7 +1355,6 @@ const Dashboard = () => {
                                                 {file.summary}
                                             </Typography>
                                         )}
-
 
                                     </Box>
                                 </Paper>
@@ -1482,11 +1482,12 @@ const Dashboard = () => {
                                     </Box>
 
                                     {/* 🆕 Expanded Section with Keywords & Summary */}
-                                    {expandedFiles.has(file.id) && (file.keywords?.length > 0 || file.summary) && ( 
+                                    {expandedFiles.has(file.id) && (file.keywords?.length > 0 || file.summary) && (
                                         <Box
                                             sx={{
-                                                px: 3,
-                                                pb: 3,
+                                                px: 4,
+                                                pb: 4,
+                                                pt: 1.5,
                                                 bgcolor: '#f7f9fc',
                                                 borderBottom: index < filteredFiles.length - 1 ? '1px solid #e8edf2' : 'none',
                                             }}

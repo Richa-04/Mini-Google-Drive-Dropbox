@@ -28,16 +28,33 @@ public class FileService {
     private final AmazonS3 amazonS3;
     private final OpenAIService openAIService;
     private final KeywordExtractionService keywordExtractionService;
-    private final DocumentSummaryService documentSummaryService; // 🆕 NEW
+    private final DocumentSummaryService documentSummaryService;
     
     @Value("${aws.s3.bucket.name}")
     private String bucketName;
     
     private final Tika tika = new Tika();
     
+    // Storage limit: 15 GB in bytes
+    private static final long STORAGE_LIMIT = 15L * 1024 * 1024 * 1024; // 15 GB
+    
     public FileMetadata uploadFile(MultipartFile file, String ownerEmail) throws Exception {
         // Generate unique filename
         String originalFileName = file.getOriginalFilename();
+        
+        // Check storage limit before upload
+        long currentStorage = getTotalStorageUsed(ownerEmail);
+        long newFileSize = file.getSize();
+        
+        if (currentStorage + newFileSize > STORAGE_LIMIT) {
+            long availableSpace = STORAGE_LIMIT - currentStorage;
+            throw new RuntimeException(
+                "Storage limit exceeded! You have " + 
+                (availableSpace / (1024 * 1024)) + " MB available, but file is " + 
+                (newFileSize / (1024 * 1024)) + " MB"
+            );
+        }
+        
         String fileName = UUID.randomUUID().toString() + "_" + originalFileName;
         
         // Generate encryption key
@@ -63,10 +80,10 @@ public class FileService {
         
         amazonS3.putObject(putObjectRequest);
         
-        // Generate embedding, keywords, and summary for text-based files
+        // Generate embedding, keywords, and summary for text-based files only
         List<Double> embedding = null;
         List<String> keywords = null;
-        String summary = null; // 🆕 NEW
+        String summary = null;
         
         if (isTextBasedFile(file.getContentType())) {
             try {
@@ -85,7 +102,7 @@ public class FileService {
                     keywords = keywordExtractionService.extractKeywords(extractedText);
                     System.out.println("✅ Extracted keywords for: " + originalFileName + " → " + keywords);
                     
-                    // 🆕 NEW: Generate summary
+                    // Generate summary
                     summary = documentSummaryService.generateSummary(extractedText);
                     System.out.println("✅ Generated summary for: " + originalFileName);
                 }
@@ -94,6 +111,7 @@ public class FileService {
                 // Continue without NLP features - file still uploads successfully
             }
         }
+        // Images don't get any NLP processing
         
         // Save metadata to database
         FileMetadata fileMetadata = new FileMetadata();
@@ -107,7 +125,7 @@ public class FileService {
         fileMetadata.setEncryptionKey(encryptionKey);
         fileMetadata.setEmbedding(embedding);
         fileMetadata.setKeywords(keywords != null ? keywords : List.of());
-        fileMetadata.setSummary(summary != null ? summary : ""); // 🆕 NEW
+        fileMetadata.setSummary(summary != null ? summary : "");
         
         return fileRepository.save(fileMetadata);
     }
@@ -132,6 +150,14 @@ public class FileService {
             System.err.println("Text extraction failed: " + e.getMessage());
             return "";
         }
+    }
+    
+    // Calculate total storage used by user
+    private long getTotalStorageUsed(String ownerEmail) {
+        List<FileMetadata> userFiles = fileRepository.findByOwnerEmail(ownerEmail);
+        return userFiles.stream()
+                .mapToLong(FileMetadata::getFileSize)
+                .sum();
     }
     
     // Semantic search using OpenAI embeddings
