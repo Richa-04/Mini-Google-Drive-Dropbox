@@ -9,8 +9,6 @@
 
 > Intelligent cloud storage that understands your documents. Upload a file and instantly get AI-generated keywords, summaries, and semantic search capabilities.
 
-🔗 [Live Demo](#) | 📚 [Documentation](docs/) | 🎥 [Video Demo](#)
-
 ---
 
 ## ⚡ TL;DR
@@ -301,18 +299,6 @@ POST   /api/files/share              # Share with email
 - 🔌 [API Documentation](docs/API.md) - All endpoints with request/response examples
 - 🤖 [NLP Implementation](docs/NLP.md) - How text extraction, keywords, and search work
 - 🐛 [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
-
----
-
-## 🤝 Contributing
-
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see [LICENSE](LICENSE) file.
 
 ---
 
