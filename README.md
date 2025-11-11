@@ -85,15 +85,15 @@
 ## 📸 Screenshots
 
 ### Dashboard with AI-Generated Keywords & Summaries
-![Dashboard](screenshots/dashboard-grid.png)
+![Dashboard](Screenshots/dashboard-grid.png)
 *Grid view showing auto-generated keywords and summaries with expandable details*
 
 ### AI Semantic Search in Action
-![AI Search](screenshots/ai-search.png)
+![AI Search](Screenshots/ai-search.png)
 *Natural language search powered by OpenAI embeddings*
 
 ### List View with NLP Details
-![List View](screenshots/list-view-expanded.png)
+![List View](Screenshots/list-view-expanded.png)
 *Expandable section showing keywords and document summary*
 
 ---
