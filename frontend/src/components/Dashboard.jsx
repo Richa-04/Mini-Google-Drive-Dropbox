@@ -623,7 +623,7 @@ const Dashboard = () => {
                                             )}
                                             <Chip
                                                 // icon={searchMode === 'ai' ? <SmartToy /> : null}
-                                                label={searchMode === 'ai' ? 'Basic' : 'AI'}
+                                                label={searchMode === 'ai' ? 'Basic' : '💡 AI Mode'}
                                                 onClick={() => {
                                                     setSearchMode(searchMode === 'ai' ? 'normal' : 'ai');
                                                     setSearchQuery('');
