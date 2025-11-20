@@ -75,7 +75,7 @@ const Signup = () => {
             sx={{
                 minHeight: '100vh',
                 display: 'flex',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
                 position: 'relative',
                 overflow: 'hidden'
             }}
@@ -154,7 +154,7 @@ const Signup = () => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Person sx={{ color: '#667eea' }} />
+                                            <Person sx={{ color: '#003566' }} />
                                         </InputAdornment>
                                     ),
                                 }}
@@ -176,7 +176,7 @@ const Signup = () => {
                                 InputProps={{
                                     startAdornment: (
                                         <InputAdornment position="start">
-                                            <Person sx={{ color: '#667eea' }} />
+                                            <Person sx={{ color: '#003566' }} />
                                         </InputAdornment>
                                     ),
                                 }}
@@ -201,7 +201,7 @@ const Signup = () => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Email sx={{ color: '#667eea' }} />
+                                        <Email sx={{ color: '#003566' }} />
                                     </InputAdornment>
                                 ),
                             }}
@@ -225,7 +225,7 @@ const Signup = () => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Lock sx={{ color: '#667eea' }} />
+                                        <Lock sx={{ color: '#003566' }} />
                                     </InputAdornment>
                                 ),
                                 endAdornment: (
@@ -259,7 +259,7 @@ const Signup = () => {
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <Lock sx={{ color: '#667eea' }} />
+                                        <Lock sx={{ color: '#003566' }} />
                                     </InputAdornment>
                                 ),
                                 endAdornment: (
@@ -285,13 +285,13 @@ const Signup = () => {
                             sx={{
                                 py: 1.5,
                                 borderRadius: 2,
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                background: 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
                                 fontSize: '1.1rem',
                                 fontWeight: 600,
                                 textTransform: 'none',
                                 boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
                                 '&:hover': {
-                                    background: 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
+                                    background: 'linear-gradient(135deg, #001D3D 0%, #001D3D 100%)',
                                     boxShadow: '0 6px 20px rgba(102, 126, 234, 0.6)',
                                 },
                             }}
@@ -306,7 +306,7 @@ const Signup = () => {
                                     to="/login"
                                     style={{
                                         textDecoration: 'none',
-                                        color: '#667eea',
+                                        color: '#003566',
                                         fontWeight: 600
                                     }}
                                 >

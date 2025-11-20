@@ -331,7 +331,7 @@ const Dashboard = () => {
     const getFileIcon = (fileType) => {
         if (fileType?.includes('image')) return <Image sx={{ fontSize: 40, color: '#4CAF50' }} />;
         if (fileType?.includes('pdf')) return <PictureAsPdf sx={{ fontSize: 40, color: '#F44336' }} />;
-        if (fileType?.includes('text')) return <Description sx={{ fontSize: 40, color: '#2196F3' }} />;
+        if (fileType?.includes('text')) return <Description sx={{ fontSize: 40, color: '#003566' }} />;
         return <InsertDriveFile sx={{ fontSize: 40, color: '#9E9E9E' }} />;
     };
 
@@ -457,7 +457,7 @@ const Dashboard = () => {
                     '& .MuiDrawer-paper': {
                         width: DRAWER_WIDTH,
                         boxSizing: 'border-box',
-                        background: 'linear-gradient(180deg, #667eea 0%, #764ba2 100%)',
+                        background: 'linear-gradient(180deg, #003566 0%, #001D3D 100%)',
                         color: 'white',
                         borderRight: 'none',
                         overflow: 'hidden',
@@ -480,8 +480,8 @@ const Dashboard = () => {
                         sx={{
                             borderRadius: 2,
                             mb: 1,
-                            bgcolor: currentView === 'dashboard' ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
-                            '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.35)' },
+                            bgcolor: currentView === 'dashboard' ? 'rgba(255, 179, 0, 0.25)' : 'transparent',
+                            '&:hover': { bgcolor: 'rgba(255, 179, 0, 0.35)' },
                             cursor: 'pointer'
                         }}
                     >
@@ -503,8 +503,8 @@ const Dashboard = () => {
                         sx={{
                             borderRadius: 2,
                             mb: 1,
-                            bgcolor: currentView === 'myDocuments' ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
-                            '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.15)' },
+                            bgcolor: currentView === 'myDocuments' ? 'rgba(255, 179, 0, 0.25)' : 'transparent',
+                            '&:hover': { bgcolor: 'rgba(255, 179, 0, 0.15)' },
                             cursor: 'pointer'
                         }}
                     >
@@ -525,8 +525,8 @@ const Dashboard = () => {
                         onClick={() => setCurrentView('shared')}
                         sx={{
                             borderRadius: 2,
-                            bgcolor: currentView === 'shared' ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
-                            '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.15)' },
+                            bgcolor: currentView === 'shared' ? 'rgba(255, 179, 0, 0.25)' : 'transparent',
+                            '&:hover': { bgcolor: 'rgba(255, 179, 0, 0.15)' },
                             cursor: 'pointer'
                         }}
                     >
@@ -550,7 +550,7 @@ const Dashboard = () => {
                     <Box sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', height: 8, borderRadius: 4, mb: 1 }}>
                         <Box
                             sx={{
-                                bgcolor: '#ffd54f',
+                                bgcolor: '#FFB300',
                                 height: 8,
                                 borderRadius: 4,
                                 width: `${Math.min((files.reduce((acc, f) => acc + f.fileSize, 0) / 15000000000) * 100, 100)}%`
@@ -587,21 +587,21 @@ const Dashboard = () => {
                                 width: 600,
                                 '& .MuiOutlinedInput-root': {
                                     borderRadius: 8,
-                                    bgcolor: searchMode === 'ai' ? '#f0f4ff' : '#f7f9fc',
+                                    bgcolor: searchMode === 'ai' ? '#E3F2FD' : '#f7f9fc',
                                     '& fieldset': {
-                                        borderColor: searchMode === 'ai' ? '#667eea' : '#e8edf2',
+                                        borderColor: searchMode === 'ai' ? '#003566' : '#e8edf2',
                                         borderWidth: searchMode === 'ai' ? 2 : 1
                                     },
-                                    '&:hover fieldset': { borderColor: '#667eea' },
+                                    '&:hover fieldset': { borderColor: '#003566' },
                                 }
                             }}
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
                                         {searchMode === 'ai' ? (
-                                            <SmartToy sx={{ color: '#667eea' }} />
+                                            <SmartToy sx={{ color: '#003566' }} />
                                         ) : (
-                                            <Search sx={{ color: '#667eea' }} />
+                                            <Search sx={{ color: '#003566' }} />
                                         )}
                                     </InputAdornment>
                                 ),
@@ -615,9 +615,9 @@ const Dashboard = () => {
                                                     disabled={aiSearching}
                                                 >
                                                     {aiSearching ? (
-                                                        <CircularProgress size={20} sx={{ color: '#667eea' }} />
+                                                        <CircularProgress size={20} sx={{ color: '#003566' }} />
                                                     ) : (
-                                                        <Search sx={{ color: '#667eea', fontSize: 20 }} />
+                                                        <Search sx={{ color: '#003566', fontSize: 20 }} />
                                                     )}
                                                 </IconButton>
                                             )}
@@ -629,20 +629,20 @@ const Dashboard = () => {
                                                     setSearchQuery('');
                                                 }}
                                                 sx={{
-                                                    background: searchMode === 'ai' ? 'transparent' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                                    color: searchMode === 'ai' ? '#667eea' : 'white',
+                                                    background: searchMode === 'ai' ? 'transparent' : 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
+                                                    color: searchMode === 'ai' ? '#003566' : 'white',
                                                     fontWeight: 600,
                                                     fontSize: '0.8rem',
                                                     height: 28,
-                                                    border: searchMode === 'ai' ? '1.5px solid #667eea' : 'none',
+                                                    border: searchMode === 'ai' ? '1.5px solid #003566' : 'none',
                                                     cursor: 'pointer',
                                                     transition: 'all 0.2s ease',
                                                     '&:hover': {
-                                                        background: searchMode === 'ai' ? '#f0f4ff' : 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
+                                                        background: searchMode === 'ai' ? '#E3F2FD' : 'linear-gradient(135deg, #001D3D 0%, #001D3D 100%)',
                                                         transform: 'scale(1.05)',
                                                     },
                                                     '& .MuiChip-icon': {
-                                                        color: searchMode === 'ai' ? '#667eea' : 'white',
+                                                        color: searchMode === 'ai' ? '#003566' : 'white',
                                                         fontSize: 18
                                                     }
                                                 }}
@@ -663,7 +663,7 @@ const Dashboard = () => {
                         >
                             <Avatar
                                 sx={{
-                                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                    background: 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
                                     width: 44,
                                     height: 44,
                                     fontWeight: 700,
@@ -728,7 +728,7 @@ const Dashboard = () => {
                         }}
                     >
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                            <CloudUpload sx={{ color: '#667eea', fontSize: 28 }} />
+                            <CloudUpload sx={{ color: '#003566', fontSize: 28 }} />
                             <Box sx={{ flex: 1 }}>
                                 <Typography variant="body2" sx={{ fontWeight: 600, color: '#1d2129', mb: 0.5 }}>
                                     Uploading...
@@ -737,7 +737,7 @@ const Dashboard = () => {
                                     {uploadingFileName}
                                 </Typography>
                             </Box>
-                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#667eea' }}>
+                            <Typography variant="h6" sx={{ fontWeight: 700, color: '#003566' }}>
                                 {uploadProgress}%
                             </Typography>
                         </Box>
@@ -749,7 +749,7 @@ const Dashboard = () => {
                                     top: 0,
                                     height: '100%',
                                     width: `${uploadProgress}%`,
-                                    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                                    background: 'linear-gradient(90deg, #003566 0%, #001D3D 100%)',
                                     borderRadius: 4,
                                     transition: 'width 0.3s ease',
                                 }}
@@ -778,7 +778,7 @@ const Dashboard = () => {
                                 flex: 1,
                                 p: 2.5,
                                 borderRadius: 3,
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                background: 'linear-gradient(135deg, #ff8fab 0%, #fb6f92 100%)',
                                 color: 'white',
                                 boxShadow: '0 4px 16px rgba(102, 126, 234, 0.3)',
                                 transition: 'transform 0.2s ease',
@@ -818,7 +818,7 @@ const Dashboard = () => {
                                 flex: 1,
                                 p: 2.5,
                                 borderRadius: 3,
-                                background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                                background: 'linear-gradient(135deg, #ffd60a 0%, #f5576c 100%)',
                                 color: 'white',
                                 boxShadow: '0 4px 16px rgba(240, 147, 251, 0.3)',
                                 transition: 'transform 0.2s ease',
@@ -862,7 +862,7 @@ const Dashboard = () => {
                                 flex: 1,
                                 p: 2.5,
                                 borderRadius: 3,
-                                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                background: 'linear-gradient(135deg, #90a955 0%, #4f772d 100%)',
                                 color: 'white',
                                 boxShadow: '0 4px 16px rgba(79, 172, 254, 0.3)',
                                 transition: 'transform 0.2s ease',
@@ -918,10 +918,10 @@ const Dashboard = () => {
                                         onClick={() => setFileTypeFilter('all')}
                                         variant={fileTypeFilter === 'all' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: fileTypeFilter === 'all' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: fileTypeFilter === 'all' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: fileTypeFilter === 'all' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: fileTypeFilter === 'all' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         All
@@ -930,10 +930,10 @@ const Dashboard = () => {
                                         onClick={() => setFileTypeFilter('pdf')}
                                         variant={fileTypeFilter === 'pdf' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: fileTypeFilter === 'pdf' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: fileTypeFilter === 'pdf' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: fileTypeFilter === 'pdf' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: fileTypeFilter === 'pdf' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         PDF
@@ -942,10 +942,10 @@ const Dashboard = () => {
                                         onClick={() => setFileTypeFilter('image')}
                                         variant={fileTypeFilter === 'image' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: fileTypeFilter === 'image' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: fileTypeFilter === 'image' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: fileTypeFilter === 'image' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: fileTypeFilter === 'image' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         Images
@@ -954,10 +954,10 @@ const Dashboard = () => {
                                         onClick={() => setFileTypeFilter('document')}
                                         variant={fileTypeFilter === 'document' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: fileTypeFilter === 'document' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: fileTypeFilter === 'document' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: fileTypeFilter === 'document' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: fileTypeFilter === 'document' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         Docs
@@ -974,10 +974,10 @@ const Dashboard = () => {
                                         onClick={() => setDateFilter('all')}
                                         variant={dateFilter === 'all' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: dateFilter === 'all' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: dateFilter === 'all' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: dateFilter === 'all' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: dateFilter === 'all' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         All Time
@@ -986,10 +986,10 @@ const Dashboard = () => {
                                         onClick={() => setDateFilter('today')}
                                         variant={dateFilter === 'today' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: dateFilter === 'today' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: dateFilter === 'today' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: dateFilter === 'today' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: dateFilter === 'today' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         Today
@@ -998,10 +998,10 @@ const Dashboard = () => {
                                         onClick={() => setDateFilter('week')}
                                         variant={dateFilter === 'week' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: dateFilter === 'week' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: dateFilter === 'week' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: dateFilter === 'week' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: dateFilter === 'week' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         This Week
@@ -1010,10 +1010,10 @@ const Dashboard = () => {
                                         onClick={() => setDateFilter('month')}
                                         variant={dateFilter === 'month' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: dateFilter === 'month' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: dateFilter === 'month' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: dateFilter === 'month' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: dateFilter === 'month' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         This Month
@@ -1030,10 +1030,10 @@ const Dashboard = () => {
                                         onClick={() => setSortBy('newest')}
                                         variant={sortBy === 'newest' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: sortBy === 'newest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: sortBy === 'newest' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: sortBy === 'newest' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: sortBy === 'newest' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         Newest
@@ -1042,10 +1042,10 @@ const Dashboard = () => {
                                         onClick={() => setSortBy('oldest')}
                                         variant={sortBy === 'oldest' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: sortBy === 'oldest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: sortBy === 'oldest' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: sortBy === 'oldest' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: sortBy === 'oldest' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         Oldest
@@ -1054,10 +1054,10 @@ const Dashboard = () => {
                                         onClick={() => setSortBy('largest')}
                                         variant={sortBy === 'largest' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: sortBy === 'largest' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: sortBy === 'largest' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: sortBy === 'largest' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: sortBy === 'largest' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         Largest
@@ -1066,10 +1066,10 @@ const Dashboard = () => {
                                         onClick={() => setSortBy('name')}
                                         variant={sortBy === 'name' ? 'contained' : 'outlined'}
                                         sx={{
-                                            background: sortBy === 'name' ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'transparent',
-                                            color: sortBy === 'name' ? 'white' : '#667eea',
-                                            borderColor: '#667eea',
-                                            '&:hover': { borderColor: '#667eea' }
+                                            background: sortBy === 'name' ? 'linear-gradient(135deg, #003566 0%, #001D3D 100%)' : 'transparent',
+                                            color: sortBy === 'name' ? 'white' : '#003566',
+                                            borderColor: '#003566',
+                                            '&:hover': { borderColor: '#003566' }
                                         }}
                                     >
                                         A-Z
@@ -1089,7 +1089,7 @@ const Dashboard = () => {
                                     icon={<SmartToy />}
                                     label="AI Search Results"
                                     sx={{
-                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        background: 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
                                         color: 'white',
                                         fontWeight: 600
                                     }}
@@ -1100,7 +1100,7 @@ const Dashboard = () => {
                             <Chip
                                 label={`${filteredFiles.length} files`}
                                 sx={{
-                                    bgcolor: '#667eea',
+                                    bgcolor: '#003566',
                                     color: 'white',
                                     fontWeight: 600
                                 }}
@@ -1112,11 +1112,11 @@ const Dashboard = () => {
                                         localStorage.setItem('viewMode', 'grid');
                                     }}
                                     sx={{
-                                        bgcolor: viewMode === 'grid' ? '#667eea' : 'transparent',
-                                        color: viewMode === 'grid' ? 'white' : '#667eea',
-                                        borderColor: '#667eea',
+                                        bgcolor: viewMode === 'grid' ? '#003566' : 'transparent',
+                                        color: viewMode === 'grid' ? 'white' : '#003566',
+                                        borderColor: '#003566',
                                         borderRadius: '4px 0 0 4px',
-                                        '&:hover': { bgcolor: viewMode === 'grid' ? '#5568d3' : '#f7f9fc' }
+                                        '&:hover': { bgcolor: viewMode === 'grid' ? '#001D3D' : '#f7f9fc' }
                                     }}
                                 >
                                     <ViewModule />
@@ -1127,12 +1127,12 @@ const Dashboard = () => {
                                         localStorage.setItem('viewMode', 'list');
                                     }}
                                     sx={{
-                                        bgcolor: viewMode === 'list' ? '#667eea' : 'transparent',
-                                        color: viewMode === 'list' ? 'white' : '#667eea',
-                                        borderColor: '#667eea',
+                                        bgcolor: viewMode === 'list' ? '#003566' : 'transparent',
+                                        color: viewMode === 'list' ? 'white' : '#003566',
+                                        borderColor: '#003566',
                                         borderRadius: '0 4px 4px 0',
-                                        borderLeft: '1px solid #667eea',
-                                        '&:hover': { bgcolor: viewMode === 'list' ? '#5568d3' : '#f7f9fc' }
+                                        borderLeft: '1px solid #003566',
+                                        '&:hover': { bgcolor: viewMode === 'list' ? '#001D3D' : '#f7f9fc' }
                                     }}
                                 >
                                     <ViewList />
@@ -1143,7 +1143,7 @@ const Dashboard = () => {
 
                     {loading || aiSearching ? (
                         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 8 }}>
-                            <CircularProgress sx={{ color: '#667eea' }} size={60} />
+                            <CircularProgress sx={{ color: '#003566' }} size={60} />
                             {aiSearching && (
                                 <Typography variant="body1" sx={{ mt: 2, color: '#6e7c87', fontWeight: 500 }}>
                                     🤖 AI is analyzing your documents...
@@ -1162,7 +1162,7 @@ const Dashboard = () => {
                                 background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)',
                             }}
                         >
-                            <Folder sx={{ fontSize: 100, color: '#667eea', opacity: 0.3, mb: 2 }} />
+                            <Folder sx={{ fontSize: 100, color: '#003566', opacity: 0.3, mb: 2 }} />
                             <Typography variant="h5" sx={{ color: '#1d2129', fontWeight: 600, mb: 1 }}>
                                 {searchMode === 'ai' && searchQuery ? 'No matching documents found' :
                                     searchQuery ? 'No files found' :
@@ -1263,12 +1263,12 @@ const Dashboard = () => {
                                                         }}
                                                         sx={{
                                                             bgcolor: '#f7f9fc',
-                                                            color: '#667eea',
+                                                            color: '#003566',
                                                             transform: expandedFiles.has(file.id) ? 'rotate(180deg)' : 'rotate(0deg)',
                                                             transition: 'transform 0.3s ease',
                                                             '&:hover': {
                                                                 bgcolor: '#e8edf2',
-                                                                color: '#5568d3'
+                                                                color: '#001D3D'
                                                             }
                                                         }}
                                                     >
@@ -1311,8 +1311,8 @@ const Dashboard = () => {
                                                         label={keyword}
                                                         size="small"
                                                         sx={{
-                                                            bgcolor: '#f0f4ff',
-                                                            color: '#667eea',
+                                                            bgcolor: '#E3F2FD',
+                                                            color: '#003566',
                                                             fontWeight: 600,
                                                             fontSize: '0.65rem',
                                                             height: 20,
@@ -1434,11 +1434,11 @@ const Dashboard = () => {
                                                 size="small"
                                                 sx={{
                                                     mr: 3,  // Increased from 2 to 3 for more space
-                                                    color: '#667eea',
+                                                    color: '#003566',
                                                     transform: expandedFiles.has(file.id) ? 'rotate(180deg)' : 'rotate(0deg)',
                                                     transition: 'transform 0.3s ease',
                                                     '&:hover': {
-                                                        bgcolor: '#f0f4ff',
+                                                        bgcolor: '#E3F2FD',
                                                     },
                                                     '& .MuiSvgIcon-root': {
                                                         fontSize: 32,
@@ -1453,7 +1453,7 @@ const Dashboard = () => {
                                         <Button
                                             variant="contained"
                                             sx={{
-                                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                background: 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
                                                 color: 'white',
                                                 textTransform: 'none',
                                                 fontWeight: 600,
@@ -1462,7 +1462,7 @@ const Dashboard = () => {
                                                 mr: 2,
                                                 boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
                                                 '&:hover': {
-                                                    background: 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
+                                                    background: 'linear-gradient(135deg, #001D3D 0%, #001D3D 100%)',
                                                     boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
                                                 }
                                             }}
@@ -1503,7 +1503,7 @@ const Dashboard = () => {
                                                 {/* Keywords */}
                                                 {file.keywords && file.keywords.length > 0 && (
                                                     <Box sx={{ mb: 2 }}>
-                                                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#667eea', mb: 1, display: 'block' }}>
+                                                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#003566', mb: 1, display: 'block' }}>
                                                             🏷️ KEYWORDS
                                                         </Typography>
                                                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
@@ -1513,12 +1513,12 @@ const Dashboard = () => {
                                                                     label={keyword}
                                                                     size="small"
                                                                     sx={{
-                                                                        bgcolor: '#f0f4ff',
-                                                                        color: '#667eea',
+                                                                        bgcolor: '#E3F2FD',
+                                                                        color: '#003566',
                                                                         fontWeight: 600,
                                                                         fontSize: '0.75rem',
                                                                         '&:hover': {
-                                                                            bgcolor: '#e0e7ff',
+                                                                            bgcolor: '#FFE082',
                                                                         }
                                                                     }}
                                                                 />
@@ -1530,7 +1530,7 @@ const Dashboard = () => {
                                                 {/* Summary */}
                                                 {file.summary && (
                                                     <Box>
-                                                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#667eea', mb: 0.5, display: 'block' }}>
+                                                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#003566', mb: 0.5, display: 'block' }}>
                                                             📝 SUMMARY
                                                         </Typography>
                                                         <Typography
@@ -1564,11 +1564,9 @@ const Dashboard = () => {
                     right: 40,
                     width: 72,
                     height: 72,
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4)',
+                    background: 'linear-gradient(135deg, #faa307 0%, #f48c06 100%)',
                     '&:hover': {
-                        background: 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
-                        boxShadow: '0 12px 32px rgba(102, 126, 234, 0.5)',
+                        background: 'linear-gradient(135deg, #f48c06 0%, #f48c06 100%)',
                         transform: 'scale(1.1)',
                     },
                     transition: 'all 0.3s ease',
@@ -1598,7 +1596,7 @@ const Dashboard = () => {
                     }}
                     sx={{ py: 1.5 }}
                 >
-                    <Edit sx={{ mr: 2, fontSize: 22, color: '#667eea' }} />
+                    <Edit sx={{ mr: 2, fontSize: 22, color: '#003566' }} />
                     <Typography sx={{ fontWeight: 500 }}>Rename</Typography>
                 </MenuItem>
                 <MenuItem
@@ -1607,7 +1605,7 @@ const Dashboard = () => {
                     }}
                     sx={{ py: 1.5 }}
                 >
-                    <Share sx={{ mr: 2, fontSize: 22, color: '#667eea' }} />
+                    <Share sx={{ mr: 2, fontSize: 22, color: '#003566' }} />
                     <Typography sx={{ fontWeight: 500 }}>Share</Typography>
                 </MenuItem>
                 <MenuItem
@@ -1617,7 +1615,7 @@ const Dashboard = () => {
                     }}
                     sx={{ py: 1.5 }}
                 >
-                    <Download sx={{ mr: 2, fontSize: 22, color: '#667eea' }} />
+                    <Download sx={{ mr: 2, fontSize: 22, color: '#003566' }} />
                     <Typography sx={{ fontWeight: 500 }}>Download</Typography>
                 </MenuItem>
                 <Divider />
@@ -1645,7 +1643,7 @@ const Dashboard = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                         <Avatar
                             sx={{
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                background: 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
                                 width: 56,
                                 height: 56,
                                 fontSize: '1.5rem',
@@ -1666,7 +1664,7 @@ const Dashboard = () => {
                 </Box>
                 <Divider />
                 <MenuItem onClick={handleLogout} sx={{ py: 2, px: 3 }}>
-                    <Logout sx={{ mr: 2, fontSize: 22, color: '#667eea' }} />
+                    <Logout sx={{ mr: 2, fontSize: 22, color: '#003566' }} />
                     <Typography sx={{ fontWeight: 600 }}>Logout</Typography>
                 </MenuItem>
             </Menu>
@@ -1708,7 +1706,7 @@ const Dashboard = () => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <Email sx={{ color: '#667eea' }} />
+                                    <Email sx={{ color: '#003566' }} />
                                 </InputAdornment>
                             ),
                         }}
@@ -1733,14 +1731,14 @@ const Dashboard = () => {
                         variant="contained"
                         disabled={!shareEmail}
                         sx={{
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
                             textTransform: 'none',
                             fontWeight: 600,
                             px: 3,
                             borderRadius: 2,
                             boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
                             '&:hover': {
-                                background: 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
+                                background: 'linear-gradient(135deg, #001D3D 0%, #001D3D 100%)',
                                 boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
                             }
                         }}
@@ -1787,7 +1785,7 @@ const Dashboard = () => {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <Edit sx={{ color: '#667eea' }} />
+                                    <Edit sx={{ color: '#003566' }} />
                                 </InputAdornment>
                             ),
                         }}
@@ -1812,14 +1810,14 @@ const Dashboard = () => {
                         variant="contained"
                         disabled={!newFileName || newFileName === selectedFile?.originalFileName}
                         sx={{
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: 'linear-gradient(135deg, #003566 0%, #001D3D 100%)',
                             textTransform: 'none',
                             fontWeight: 600,
                             px: 3,
                             borderRadius: 2,
                             boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
                             '&:hover': {
-                                background: 'linear-gradient(135deg, #5568d3 0%, #65398b 100%)',
+                                background: 'linear-gradient(135deg, #001D3D 0%, #001D3D 100%)',
                                 boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
                             }
                         }}
